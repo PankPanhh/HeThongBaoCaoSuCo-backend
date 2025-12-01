@@ -4,32 +4,46 @@ import { Box, Button, Icon, Page, Text } from "zmp-ui";
 import Clock from "@/components/clock";
 import Logo from "@/components/logo";
 import bg from "@/static/bg.svg";
+import { useState } from "react";
+import HeaderComponent from "@/components/HeaderComponent";
+import BannerComponent from "@/components/BannerComponent";
+import MiniStatsComponent from "@/components/MiniStatsComponent";
+import ActionCardsComponent from "@/components/ActionCardsComponent";
+import FloatingButtonComponent from "@/components/FloatingButtonComponent";
+import PublicMapComponent from "@/components/PublicMapComponent";
+import RecentIncidentsComponent from "@/components/RecentIncidentsComponent";
 
 function HomePage() {
+  const [showBanner] = useState(true);
+
   return (
     <Page
-      className="flex flex-col items-center justify-center space-y-6 bg-cover bg-center bg-no-repeat bg-white dark:bg-black"
+      className="min-h-screen bg-cover bg-center bg-no-repeat bg-gray-50 dark:bg-black"
       style={{
         backgroundImage: `url(${bg})`,
       }}
     >
-      <Box></Box>
-      <Box textAlign="center" className="space-y-1">
-        <Text.Title size="xLarge">Xin chào Nguyễn Phương Anh</Text.Title>
-        <Clock />
-      </Box>
-      <Button
-        variant="primary"
-        suffixIcon={<Icon icon="zi-more-grid" />}
-        onClick={() => {
-          openMiniApp({
-            appId: "1070750904448149704", // ZaUI Components
-          });
-        }}
-      >
-        ZaUI Component Library
-      </Button>
-      <Logo className="fixed bottom-8" />
+      <div className="max-w-4xl mx-auto p-4">
+        <HeaderComponent />
+        <BannerComponent show={showBanner} />
+
+        {/* Action area */}
+        <ActionCardsComponent />
+
+
+        {/* Public map */}
+        <PublicMapComponent />
+
+        {/* Recent incidents list */}
+        <RecentIncidentsComponent />
+
+        {/* Footer / logo */}
+        <div className="flex justify-center my-3">
+          <Logo />
+        </div>
+      </div>
+      <FloatingButtonComponent />
+      
     </Page>
   );
 }
