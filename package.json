@@ -1,0 +1,48 @@
+{
+  "name": "hethongbaocaosuco",
+  "private": true,
+  "version": "1.0.0",
+  "description": "zmp-blank-templates",
+  "repository": "",
+  "license": "UNLICENSED",
+  "browserslist": [
+    "Android >= 5",
+    "IOS >= 9.3",
+    "Edge >= 15",
+    "Safari >= 9.1",
+    "Chrome >= 49",
+    "Firefox >= 31",
+    "Samsung >= 5"
+  ],
+  "scripts": {
+    "login": "zmp login",
+    "start": "zmp start",
+    "deploy": "zmp deploy",
+    "start:miniapp": "zmp start",
+    "start:admin": "cd admin-dashboard && ng serve --port 4200",
+    "dev": "concurrently \"npm run start:miniapp\" \"npm run start:admin\"",
+    "build:admin": "cd admin-dashboard && ng build --configuration production"
+  },
+  "dependencies": {
+    "jotai": "^2.12.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zmp-sdk": "latest",
+    "zmp-ui": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
+    "postcss": "^8.4.38",
+    "postcss-cli": "^8.3.1",
+    "postcss-preset-env": "^6.7.0",
+    "sass": "^1.76.0",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.13",
+    "zmp-vite-plugin": "latest"
+  }
+}
