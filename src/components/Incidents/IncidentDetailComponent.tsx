@@ -61,10 +61,14 @@ const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
                 // If it's already absolute (http, data), return as-is
                 if (/^(https?:|data:)/.test(path)) return path;
                 
-                // Prefix with origin to ensure correct absolute URL
-                const fullUrl = window.location.origin + (path.startsWith('/') ? path : ('/' + path));
-                console.log('Image URL:', fullUrl);
-                return fullUrl;
+                // Try dev path first (for /assets/image/incidents/, try /static/incidents/)
+                if (path.includes('/assets/image/incidents/')) {
+                  const devPath = path.replace('/assets/image/incidents/', '/static/incidents/');
+                  return window.location.origin + devPath;
+                }
+                
+                // Otherwise prefix with origin to ensure correct absolute URL
+                return window.location.origin + (path.startsWith('/') ? path : ('/' + path));
               };
 
               const src = resolveUrl(m);
@@ -80,8 +84,11 @@ const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
                     className="object-cover w-full h-full"
                     onError={(e) => {
                       const target = e.currentTarget as HTMLImageElement;
-                      console.warn('Failed to load image:', target.src);
-                      if (target.src !== placeholder) {
+                      // If currently trying dev path, try prod path
+                      if (target.src.includes('/static/incidents/')) {
+                        target.src = window.location.origin + m;
+                      } else if (target.src !== placeholder) {
+                        // If prod path also fails, use placeholder
                         target.src = placeholder;
                       }
                     }}
