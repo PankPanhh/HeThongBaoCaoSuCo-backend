@@ -1,3 +1,4 @@
+import React from "react";
 import { getSystemInfo } from "zmp-sdk";
 import {
   AnimationRoutes,
@@ -9,17 +10,25 @@ import {
 import { AppProps } from "zmp-ui/app";
 
 import HomePage from "@/pages/index";
+import IncidentsListPage from "@/pages/IncidentsListPage";
+import IncidentDetailPage from "@/pages/IncidentDetailPage";
+
+const SnackbarProviderComponent = SnackbarProvider as unknown as React.ComponentType<
+  React.PropsWithChildren<Record<string, unknown>>
+>;
 
 const Layout = () => {
   return (
     <App theme={getSystemInfo().zaloTheme as AppProps["theme"]}>
-      <SnackbarProvider>
+      <SnackbarProviderComponent>
         <ZMPRouter>
           <AnimationRoutes>
             <Route path="/" element={<HomePage />}></Route>
+            <Route path="/incidents" element={<IncidentsListPage />}></Route>
+            <Route path="/incidents/:id" element={<IncidentDetailPage />}></Route>
           </AnimationRoutes>
         </ZMPRouter>
-      </SnackbarProvider>
+      </SnackbarProviderComponent>
     </App>
   );
 };
