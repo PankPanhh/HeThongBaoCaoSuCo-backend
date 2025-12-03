@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { navigateTo } from 'zmp-sdk';
 import ALL_MOCK_INCIDENTS from '@/data/mockIncidents';
 import IncidentDetailComponent from '@/components/Incidents/IncidentDetailComponent';
 import { Incident } from '@/types/incident';
@@ -25,7 +24,7 @@ const RecentIncidentsComponent: React.FC = () => {
   const [selected, setSelected] = useState<Incident | null>(null);
 
   const handleViewAll = () => {
-    navigateTo({ path: '/incidents' });
+    window.location.href = '/incidents';
   };
 
   const openDetail = (incident: Incident) => {

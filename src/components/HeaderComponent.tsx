@@ -20,7 +20,7 @@ const HeaderComponent: React.FC = () => {
     <header className="flex items-center justify-between py-4" style={{paddingTop: '3rem'}}>
       <div className="flex items-center space-x-4">
         <div className="w-12 h-12 rounded-md flex items-center justify-center" style={{ background: 'transparent' }}>
-          <img src="www/assets/image/logo.png" alt="Logo cơ quan" className="max-w-full max-h-full object-contain" />
+          <img src="public/logo.png" alt="Logo cơ quan" className="max-w-full max-h-full object-contain" />
         </div>
         <div>
           <h1 className="text-lg font-semibold text-gray-800">Hệ thống báo cáo sự cố</h1>

@@ -1,7 +1,6 @@
 // IncidentsListPage.tsx
 
 import React, { useState, useEffect } from 'react';
-import { navigateTo } from 'zmp-sdk';
 import { Page, Box, Text, Header } from 'zmp-ui';
 import IncidentFilterBar from '../components/Incidents/IncidentFilterBar';
 import IncidentList from '../components/Incidents/IncidentList';
@@ -27,7 +26,7 @@ const fetchIncidents = (filters: any, page: number, pageSize: number): { inciden
 };
 
 const useNavigateToDetail = (id: string) => {
-    navigateTo({ path: `/incidents/${id}` });
+    window.location.href = `/incidents/${id}`;
 };
 
 const PAGE_SIZE = 5;
