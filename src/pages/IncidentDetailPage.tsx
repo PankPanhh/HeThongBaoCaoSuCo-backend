@@ -17,7 +17,6 @@ const getStatusClasses = (status: Incident['status']) => {
 };
 
 const IncidentDetailPage: React.FC = () => {
-  // Extract id from path /incidents/:id
   const parts = window.location.pathname.split('/').filter(Boolean);
   const id = parts.length >= 2 ? parts[1] : parts[parts.length - 1] || '';
 
@@ -38,7 +37,7 @@ const IncidentDetailPage: React.FC = () => {
 
   return (
     <Page className="bg-gray-50">
-      <Box className="p-4">
+      <Box className="p-4 max-w-4xl mx-auto">
         <div style={{ marginTop: '3rem' }}>
           <IncidentDetailComponent incident={incident} onClose={() => window.history.back()} />
         </div>

@@ -1,5 +1,3 @@
-// IncidentFilterBar.tsx
-
 import React from 'react';
 import { Box, Button, Icon } from 'zmp-ui';
 
@@ -42,16 +40,17 @@ const IncidentFilterBar: React.FC<IncidentFilterBarProps> = ({ onApplyFilters })
     try {
       onApplyFilters(next);
     } catch (e) {
+      // ignore
     }
   };
 
   return (
-    <Box className="bg-white p-4 shadow-md sticky top-0 z-10 space-y-3">
-      <div className="flex space-x-2" style={{ marginTop: '4rem' }}>
+    <Box className="bg-white shadow-md" style={{ zIndex: 12 }}>
+      <div className="max-w-4xl mx-auto p-4 flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0">
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Trạng thái</label>
+          <label className="block text-sm font-medium mb-2 text-gray-700">Trạng thái</label>
           <select
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border border-gray-200 rounded-lg hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-150"
             value={filters.status}
             onChange={(e) => handleChange('status', e.target.value)}
           >
@@ -64,9 +63,9 @@ const IncidentFilterBar: React.FC<IncidentFilterBarProps> = ({ onApplyFilters })
         </div>
 
         <div className="flex-1">
-          <label className="block text-sm font-medium mb-1">Loại sự cố</label>
+          <label className="block text-sm font-medium mb-2 text-gray-700">Loại sự cố</label>
           <select
-            className="w-full p-2 border rounded"
+            className="w-full p-3 border border-gray-200 rounded-lg hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-150"
             value={filters.type}
             onChange={(e) => handleChange('type', e.target.value)}
           >
@@ -77,8 +76,16 @@ const IncidentFilterBar: React.FC<IncidentFilterBarProps> = ({ onApplyFilters })
             ))}
           </select>
         </div>
+
+        <div className="w-full sm:w-48 flex items-end">
+          <button
+            onClick={() => { setFilters({ status: 'all', type: 'all' }); try { onApplyFilters({ status: 'all', type: 'all' }); } catch {} }}
+            className="w-full sm:w-auto bg-white border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-all text-sm"
+          >
+            Đặt lại
+          </button>
+        </div>
       </div>
-      
     </Box>
   );
 };

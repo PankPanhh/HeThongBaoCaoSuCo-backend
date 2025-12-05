@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text, Button } from 'zmp-ui';
 import { Incident } from '@/types/incident';
 
@@ -21,99 +21,173 @@ const getStatusClasses = (status: Incident['status']) => {
 
 const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
   const statusClasses = getStatusClasses(incident.status);
-
-  // Use incident.history from mock data if available, otherwise fallback
   const history = incident.history && incident.history.length > 0
     ? incident.history
     : [
         { time: incident.time, status: incident.status },
       ];
 
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [showFullDesc, setShowFullDesc] = useState(false);
+
+  const resolveUrl = (path: string) => {
+    if (/^(https?:|data:)/.test(path)) return path;
+    if (path.includes('/assets/image/incidents/')) {
+      const devPath = path.replace('/assets/image/incidents/', '/static/incidents/');
+      return window.location.origin + devPath;
+    }
+    return window.location.origin + (path.startsWith('/') ? path : ('/' + path));
+  };
+
+  const mediaUrls = (incident.media || []).map((m) => resolveUrl(m));
+
+  const highlightKeywords = (text = '') => {
+    const keywords = ['bật gốc', 'bật gốc do gió mạnh', 'đã được cắt', 'dọn'];
+    let html = text;
+    keywords.forEach((kw) => {
+      const re = new RegExp(`(${kw})`, 'ig');
+      html = html.replace(re, '<strong>$1</strong>');
+    });
+    return html;
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (lightboxIndex !== null) {
+        if (e.key === 'Escape') setLightboxIndex(null);
+        if (e.key === 'ArrowRight') setLightboxIndex((i) => (i === null ? null : Math.min((incident.media || []).length - 1, i + 1)));
+        if (e.key === 'ArrowLeft') setLightboxIndex((i) => (i === null ? null : Math.max(0, i - 1)));
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxIndex, incident.media]);
+
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <Text.Title size="small">{incident.type} tại {incident.location}</Text.Title>
-          <div className="mt-2">
-            <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-medium ${statusClasses.bg} ${statusClasses.text}`}>
-              <span className="mr-2">{statusClasses.icon}</span>
-              {incident.status}
-            </span>
-            <span className="ml-3 text-sm text-gray-500">{incident.time}</span>
+    <div className="max-w-3xl mx-auto bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-xl p-6 border border-gray-100">
+        <div className="flex items-start justify-between mb-4">
+          <div className="min-w-0">
+            <Text.Title size="small" className="text-gray-800">{incident.type} - {incident.location}</Text.Title>
+            <div className="mt-3 flex items-start space-x-4">
+              <div>
+                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold shadow-sm ${statusClasses.bg} ${statusClasses.text} whitespace-nowrap`}
+                  role="status" aria-label={`Trạng thái: ${incident.status}`}>
+                  <span className="text-sm leading-none">{statusClasses.icon}</span>
+                  <span className="text-sm leading-none">{incident.status}</span>
+                </span>
+                <div className="text-sm text-gray-700 mt-1">{incident.time}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="ml-4 flex-shrink-0 flex items-start">
+            <div className="flex gap-2">
+              <Button size="small" className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm transition-all" onClick={onClose}>Quay lại</Button>
+              <Button size="small" className="bg-blue-600 text-white hover:bg-blue-700 shadow transition-all" onClick={() => { navigator.clipboard?.writeText(window.location.href); }}>Chia sẻ</Button>
+            </div>
           </div>
         </div>
-        <div>
-          <Button size="small" onClick={onClose}>Quay lại</Button>
-        </div>
-      </div>
 
       <div className="mt-3">
-        <Text className="font-medium">Mô tả</Text>
-        <Text className="text-sm text-gray-600 mt-1">{incident.description ?? 'Không có mô tả chi tiết cho sự cố này.'}</Text>
-      </div>
-
-      <div className="mt-4">
-        <Text className="font-medium">Ảnh / Video</Text>
-        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {incident.media && incident.media.length > 0 ? (
-            incident.media.map((m, idx) => {
-              const resolveUrl = (path: string) => {
-                // If it's already absolute (http, data), return as-is
-                if (/^(https?:|data:)/.test(path)) return path;
-                
-                // Try dev path first (for /assets/image/incidents/, try /static/incidents/)
-                if (path.includes('/assets/image/incidents/')) {
-                  const devPath = path.replace('/assets/image/incidents/', '/static/incidents/');
-                  return window.location.origin + devPath;
-                }
-                
-                // Otherwise prefix with origin to ensure correct absolute URL
-                return window.location.origin + (path.startsWith('/') ? path : ('/' + path));
-              };
-
-              const src = resolveUrl(m);
-
-              const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#999" font-size="20">media-${idx}</text></svg>`;
-              const placeholder = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-
-              return (
-                <div key={idx} className="bg-gray-100 h-40 rounded overflow-hidden flex items-center justify-center">
-                  <img
-                    src={src}
-                    alt={`media-${idx}`}
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      // If currently trying dev path, try prod path
-                      if (target.src.includes('/static/incidents/')) {
-                        target.src = window.location.origin + m;
-                      } else if (target.src !== placeholder) {
-                        // If prod path also fails, use placeholder
-                        target.src = placeholder;
-                      }
-                    }}
-                  />
-                </div>
-              );
-            })
+        <Text className="font-medium text-gray-700">Mô tả</Text>
+        <div className="text-sm text-gray-600 mt-2 leading-relaxed">
+          {incident.description ? (
+            <>
+              <div className={`${showFullDesc ? '' : 'line-clamp-4'} `} dangerouslySetInnerHTML={{ __html: highlightKeywords(incident.description) }} />
+              {incident.description.length > 220 && (
+                <button
+                  className="mt-2 text-sm text-blue-600 hover:underline"
+                  onClick={() => setShowFullDesc((s) => !s)}
+                >
+                  {showFullDesc ? 'Thu gọn' : 'Xem thêm'}
+                </button>
+              )}
+            </>
           ) : (
-            <div className="col-span-full mt-1 bg-gray-100 h-40 rounded flex items-center justify-center text-gray-400">Không có ảnh/video</div>
+            <Text className="text-sm text-gray-600">Không có mô tả chi tiết cho sự cố này.</Text>
           )}
         </div>
       </div>
 
-      <div className="mt-4">
-        <Text className="font-medium">Lịch sử cập nhật</Text>
-        <ul className="mt-2 space-y-2">
-          {history.map((h, idx) => (
-            <li key={idx} className="flex items-center justify-between border rounded p-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">{h.time}</span>
-                <span className="text-sm font-medium">{h.status}</span>
+        <div className="mt-5">
+        <Text className="font-medium text-gray-700">Ảnh / Video</Text>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {mediaUrls.length > 0 ? (
+            mediaUrls.map((src, idx) => {
+              const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="100%" height="100%" fill="#f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#999" font-size="20">media-${idx}</text></svg>`;
+              const placeholder = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+
+              return (
+                <div key={idx} className="bg-gray-100 rounded-lg overflow-hidden relative group">
+                  <div className="h-48 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={src}
+                      alt={`Ảnh sự cố ${idx + 1}`}
+                      role="button"
+                      aria-label={`Mở ảnh ${idx + 1}`}
+                      onClick={() => setLightboxIndex(idx)}
+                      className="object-cover w-full h-full transform transition-transform duration-300 group-hover:scale-105 cursor-zoom-in"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (target.src.includes('/static/incidents/')) {
+                          target.src = window.location.origin + (incident.media && incident.media[idx] ? incident.media[idx] : '');
+                        } else if (target.src !== placeholder) {
+                          target.src = placeholder;
+                        }
+                      }}
+                    />
+                  </div>
+                  {incident.mediaCaptions && incident.mediaCaptions[idx] && (
+                    <div className="p-2 text-xs text-gray-600">{incident.mediaCaptions[idx]}</div>
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full mt-1 bg-gray-100 h-48 rounded-lg flex items-center justify-center text-gray-400">Không có ảnh/video</div>
+          )}
+        </div>
+      </div>
+
+      {lightboxIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-60" onClick={() => setLightboxIndex(null)} />
+          <div className="relative z-10 max-w-4xl w-full mx-4">
+            <div className="bg-white rounded-lg overflow-hidden shadow-xl">
+              <div className="p-2 flex items-center justify-between border-b">
+                <div className="text-sm text-gray-700">{incident.type} — {incident.location}</div>
+                <div className="space-x-2">
+                  <button className="text-gray-600 px-2" onClick={() => setLightboxIndex((i) => (i === null ? null : Math.max(0, i - 1)))}>‹</button>
+                  <button className="text-gray-600 px-2" onClick={() => setLightboxIndex((i) => (i === null ? null : Math.min((mediaUrls.length - 1), i + 1)))}>›</button>
+                  <button className="text-gray-600 px-2" onClick={() => setLightboxIndex(null)}>✕</button>
+                </div>
               </div>
-            </li>
+              <div className="p-4 bg-black flex items-center justify-center">
+                <img src={mediaUrls[lightboxIndex]} alt={`Ảnh ${lightboxIndex + 1}`} className="max-h-[70vh] w-auto object-contain" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-6">
+        <Text className="font-medium text-gray-700">Lịch sử cập nhật</Text>
+        <div className="mt-3 space-y-4">
+          {history.map((h, idx) => (
+            <div key={idx} className="flex items-start space-x-3">
+              <div className="flex-shrink-0 mt-1">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                {idx < history.length - 1 && <div className="w-px h-8 bg-gray-200 mx-auto mt-1" />}
+              </div>
+              <div className="flex-1 bg-white border border-gray-100 rounded-lg p-3 shadow-sm">
+                <div className="flex flex-col">
+                  <div className="text-sm font-medium text-gray-800">{h.status}</div>
+                  <div className="text-sm text-gray-600 mt-1">{h.time}</div>
+                </div>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

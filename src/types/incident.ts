@@ -14,6 +14,7 @@ export type Incident = {
   time: string;
   description?: string;
   media?: string[]; // placeholder URLs
+  mediaCaptions?: string[]; // optional captions matching media indexes
   history?: IncidentHistoryEntry[];
 };
 
