@@ -9,6 +9,8 @@ import {
 import { AppProps } from "zmp-ui/app";
 
 import HomePage from "@/pages/index";
+import UserProfile from "@/pages/user-profle";
+import IncidentManagement from "@/pages/incident-management";
 
 const Layout = () => {
   return (
@@ -17,6 +19,11 @@ const Layout = () => {
         <ZMPRouter>
           <AnimationRoutes>
             <Route path="/" element={<HomePage />}></Route>
+            <Route path="/user-profile" element={<UserProfile />}></Route>
+            <Route
+              path="/incident-management"
+              element={<IncidentManagement />}
+            ></Route>
           </AnimationRoutes>
         </ZMPRouter>
       </SnackbarProvider>
