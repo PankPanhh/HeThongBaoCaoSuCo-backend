@@ -19,7 +19,16 @@ const ActionCardsComponent: React.FC = () => {
       icon: '💬',
       title: 'Chat hỗ trợ',
       description: 'Trao đổi trực tiếp với bộ phận xử lý',
-      onClick: () => console.log('Chat hỗ trợ'),
+      onClick: () => {
+        // navigate to support chat page within the app
+        try {
+          window.history.pushState({}, '', '/support-chat');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } catch (e) {
+          // fallback full navigation
+          window.location.href = '/support-chat';
+        }
+      },
     },
   ];
 
@@ -28,8 +37,9 @@ const ActionCardsComponent: React.FC = () => {
       {actions.map((action, index) => (
         <button
           key={index}
-          className="flex items-center space-x-4 p-5 bg-white rounded-lg shadow hover:shadow-md text-left transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onClick={action.onClick}
+          type="button"
+          className="flex items-center space-x-4 p-5 bg-white rounded-lg shadow hover:shadow-md text-left transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          onClick={() => action.onClick && action.onClick()}
         >
           <div className="text-3xl">{action.icon}</div>
           <div>
