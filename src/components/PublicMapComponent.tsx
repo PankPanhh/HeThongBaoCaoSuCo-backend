@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icons when bundlers move assets
+// Fix for default marker icons
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
@@ -19,16 +19,30 @@ const incidents = [
 ];
 
 const PublicMapComponent: React.FC = () => {
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current?.invalidateSize();
+      }, 100);
+    }
+    window.dispatchEvent(new Event('resize'));
+  }, []);
+
   return (
-    <div className="mt-6 bg-white rounded-md shadow p-4">
+    // Thêm 'relative z-0' vào container cha của card để đảm bảo nó nằm đúng lớp
+    <div className="mt-6 bg-white rounded-md shadow p-4 relative z-0">
       <div className="text-sm text-gray-600 mb-2">Bản đồ sự cố công cộng</div>
 
-      <div className="w-full h-56 rounded overflow-hidden">
+      <div className="relative w-full h-56 rounded overflow-hidden isolate z-0">
         <MapContainer
+          ref={mapRef}
           center={[10.776530, 106.700981]}
           zoom={13}
           scrollWheelZoom={false}
           className="w-full h-full"
+          style={{ zIndex: 0 }} // Ép cứng style z-index cho container của Leaflet
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -1,6 +1,10 @@
 import React from 'react';
 
-const ActionCardsComponent: React.FC = () => {
+interface ActionCardsComponentProps {
+  onTrackProgressClick?: () => void;
+}
+
+const ActionCardsComponent: React.FC<ActionCardsComponentProps> = ({ onTrackProgressClick }) => {
   const actions = [
     {
       icon: '🚨',
@@ -12,7 +16,7 @@ const ActionCardsComponent: React.FC = () => {
       icon: '🔄',
       title: 'Theo dõi tiến độ',
       description: 'Xem trạng thái xử lý báo cáo của bạn',
-      onClick: () => console.log('Theo dõi tiến độ'),
+      onClick: onTrackProgressClick || (() => console.log('Theo dõi tiến độ')),
     },
     
     {
