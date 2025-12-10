@@ -69,8 +69,21 @@ const HeaderComponent: React.FC = () => {
                 <div className="text-xs text-gray-500">Tài khoản người dùng</div>
               </div>
               <div className="p-2">
-                <button className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">Thông tin cá nhân</button>
-                <button className="w-full text-left px-3 py-2 text-sm text-white bg-red-500 rounded mt-2">Đăng xuất</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      window.history.pushState({}, '', '/user-profile');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    } catch (e) {
+                      window.location.href = '/user-profile';
+                    }
+                  }}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
+                >
+                  Thông tin cá nhân
+                </button>
+                <button type="button" className="w-full text-left px-3 py-2 text-sm text-white bg-red-500 rounded mt-2">Đăng xuất</button>
               </div>
             </div>
           )}

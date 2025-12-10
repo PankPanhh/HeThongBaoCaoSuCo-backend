@@ -10,7 +10,14 @@ const ActionCardsComponent: React.FC<ActionCardsComponentProps> = ({ onTrackProg
       icon: '🚨',
       title: 'Báo cáo sự cố',
       description: 'Gửi báo cáo mới (ảnh, video, GPS)',
-      onClick: () => console.log('Báo cáo sự cố'),
+      onClick: () => {
+        try {
+          window.history.pushState({}, '', '/incident-management');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } catch (e) {
+          window.location.href = '/incident-management';
+        }
+      },
     },
     {
       icon: '🔄',
