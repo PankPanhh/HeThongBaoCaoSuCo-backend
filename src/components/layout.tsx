@@ -17,6 +17,8 @@ import SupportChatPage from "@/pages/SupportChatPage";
 const SnackbarProviderComponent = SnackbarProvider as unknown as React.ComponentType<
   React.PropsWithChildren<Record<string, unknown>>
 >;
+import UserProfile from "@/pages/user-profle";
+import IncidentManagement from "@/pages/incident-management";
 
 const Layout = () => {
   return (
@@ -28,6 +30,11 @@ const Layout = () => {
             <Route path="/incidents" element={<IncidentsListPage />}></Route>
             <Route path="/incidents/:id" element={<IncidentDetailPage />}></Route>
             <Route path="/support-chat" element={<SupportChatPage />}></Route>
+            <Route path="/user-profile" element={<UserProfile />}></Route>
+            <Route
+              path="/incident-management"
+              element={<IncidentManagement />}
+            ></Route>
           </AnimationRoutes>
         </ZMPRouter>
       </SnackbarProviderComponent>
