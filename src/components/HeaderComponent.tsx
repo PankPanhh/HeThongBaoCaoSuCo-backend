@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+import NotificationComponent, { NotificationItem } from './ProgressAndNotification/NotificationComponent';
+
 const HeaderComponent: React.FC = () => {
   // mock user (replace with real auth data)
-  const user = { name: 'Nguyễn Phương Anh', avatar: 'www/assets/image/avatar.png' };
+  const user = { name: 'Phạm Nguyễn Ngọc Cường', avatar: 'www/assets/avatar.jpg'};
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -16,11 +18,26 @@ const HeaderComponent: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  // Mock notifications (có thể thay bằng props hoặc state động)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([
+    { id: '1', title: 'Báo cáo mới từ khu vực A', message: 'Có 1 báo cáo cần xác minh', type: 'info', time: '2 phút trước', read: false },
+    { id: '2', title: 'Sự cố điện', message: 'Mất điện khu B', type: 'warning', time: '15 phút trước', read: false },
+    { id: '3', title: 'Đã xử lý xong', message: 'Sự cố 123 đã được đóng', type: 'success', time: '1 giờ trước', read: true },
+    { id: '4', title: 'Lỗi hệ thống', message: 'Lỗi đăng nhập người dùng', type: 'danger', time: 'Hôm qua', read: true },
+  ]);
+
+  const handleMarkAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+  const handleMarkRead = (id: string) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+  };
+
   return (
     <header className="flex items-center justify-between py-4" style={{paddingTop: '3rem'}}>
       <div className="flex items-center space-x-4">
         <div className="w-12 h-12 rounded-md flex items-center justify-center" style={{ background: 'transparent' }}>
-          <img src="public/logo.png" alt="Logo cơ quan" className="max-w-full max-h-full object-contain" />
+          <img src="./www/assets/logo.jpg" alt="Logo cơ quan" className="max-w-full max-h-full object-contain rounded-full" />
         </div>
         <div>
           <h1 className="text-lg font-semibold text-gray-800">Hệ thống báo cáo sự cố</h1>
@@ -29,19 +46,18 @@ const HeaderComponent: React.FC = () => {
       </div>
 
       <div className="flex items-center space-x-3">
-        <button
-          aria-label="Thông báo"
-          className="p-2 rounded-md bg-white shadow hover:bg-gray-100 transition-colors"
-        >
-          🔔
-        </button>
+        <NotificationComponent
+          notifications={Array.isArray(notifications) ? notifications : []}
+          onMarkAllRead={handleMarkAllRead}
+          onMarkRead={handleMarkRead}
+        />
 
         <div className="relative" ref={menuRef}>
           <button
             aria-haspopup="true"
             aria-expanded={open}
             onClick={() => setOpen((s) => !s)}
-            className="flex items-center space-x-2 p-1 rounded-md bg-white shadow hover:bg-gray-100"
+            className="flex items-center space-x-2 p-1 rounded-full bg-black shadow hover:bg-gray-100"
           >
             <img src={user.avatar} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
           </button>
