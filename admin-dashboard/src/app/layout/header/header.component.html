@@ -1,0 +1,133 @@
+<header class="header" [class.sidebar-collapsed]="isCollapsed">
+  <div class="header-content">
+    <!-- Left Section: Breadcrumb -->
+    <div class="header-left">
+      <nav class="breadcrumb">
+        <ol class="breadcrumb-list">
+          <li *ngFor="let crumb of breadcrumbs; let last = last" class="breadcrumb-item">
+            <a *ngIf="!last && crumb.url" [routerLink]="crumb.url" class="breadcrumb-link">
+              {{ crumb.label }}
+            </a>
+            <span *ngIf="last" class="breadcrumb-current">{{ crumb.label }}</span>
+            <span *ngIf="!last" class="breadcrumb-separator material-icons">chevron_right</span>
+          </li>
+        </ol>
+      </nav>
+    </div>
+
+    <!-- Right Section: Search, Notifications, User Menu -->
+    <div class="header-right">
+      <!-- Search Box -->
+      <div class="search-box">
+        <span class="material-icons search-icon">search</span>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Tìm kiếm sự cố (ID, nội dung)..."
+          class="search-input"
+        />
+      </div>
+
+      <!-- Notifications -->
+      <div class="notifications-container">
+        <button class="icon-button" (click)="toggleNotifications($event)">
+          <span class="material-icons">notifications</span>
+          <span *ngIf="unreadNotificationsCount > 0" class="badge">
+            {{ unreadNotificationsCount }}
+          </span>
+        </button>
+
+        <!-- Notifications Dropdown -->
+        <div class="dropdown notifications-dropdown" *ngIf="showNotifications">
+          <div class="dropdown-header">
+            <h3>Thông báo</h3>
+            <button class="link-button" (click)="markAllAsRead()">
+              Đánh dấu đã đọc
+            </button>
+          </div>
+          <div class="notifications-list">
+            <div
+              *ngFor="let notification of notifications"
+              class="notification-item"
+              [class.unread]="!notification.read"
+              [class.notification-warning]="notification.type === 'warning'"
+              [class.notification-error]="notification.type === 'error'"
+              [class.notification-success]="notification.type === 'success'"
+              [class.notification-info]="notification.type === 'info'"
+              (click)="markAsRead(notification)"
+            >
+              <div class="notification-icon">
+                <span class="material-icons">
+                  {{ notification.type === 'warning' ? 'warning' :
+                     notification.type === 'error' ? 'error' :
+                     notification.type === 'success' ? 'check_circle' :
+                     'info' }}
+                </span>
+              </div>
+              <div class="notification-content">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">{{ notification.time }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown-footer">
+            <a routerLink="/notifications" class="view-all-link">
+              Xem tất cả thông báo
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Menu -->
+      <div class="user-menu-container">
+        <button class="user-button" (click)="toggleUserMenu($event)">
+          <div class="user-avatar">
+            <span class="material-icons">account_circle</span>
+          </div>
+          <div class="user-info">
+            <div class="user-name">{{ userName }}</div>
+            <div class="user-role">{{ userRole }}</div>
+          </div>
+          <span class="material-icons">expand_more</span>
+        </button>
+
+        <!-- User Dropdown -->
+        <div class="dropdown user-dropdown" *ngIf="showUserMenu">
+          <div class="user-dropdown-header">
+            <div class="user-avatar-large">
+              <span class="material-icons">account_circle</span>
+            </div>
+            <div>
+              <div class="user-name-large">{{ userName }}</div>
+              <div class="user-email">admin@example.com</div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <ul class="dropdown-menu">
+            <li>
+              <button class="dropdown-item" (click)="navigateToProfile()">
+                <span class="material-icons">person</span>
+                <span>Hồ sơ cá nhân</span>
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" (click)="changePassword()">
+                <span class="material-icons">lock</span>
+                <span>Đổi mật khẩu</span>
+              </button>
+            </li>
+            <li class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item logout" (click)="logout()">
+                <span class="material-icons">logout</span>
+                <span>Đăng xuất</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
