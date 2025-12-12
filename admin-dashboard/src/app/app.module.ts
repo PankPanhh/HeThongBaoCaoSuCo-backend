@@ -13,6 +13,10 @@ import { FooterComponent } from './layout/footer/footer.component';
 
 // Page Components
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { AuditLogPageComponent } from './pages/auditlog/audit-log-page.component';
+import { AuditLogFilterComponent } from './pages/auditlog/audit-log-filter.component';
+import { AuditLogTableComponent } from './pages/auditlog/audit-log-table.component';
+import { AuditLogDetailComponent } from './pages/auditlog/audit-log-detail.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +26,11 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
     HeaderComponent,
     FooterComponent,
     DashboardComponent
+    ,
+    AuditLogPageComponent,
+    AuditLogFilterComponent,
+    AuditLogTableComponent,
+    AuditLogDetailComponent
   ],
   imports: [
     BrowserModule,

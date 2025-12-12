@@ -1,0 +1,34 @@
+<div class="audit-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="icon-title">
+        <span class="material-icons page-icon">history</span>
+        <div>
+          <h2>Audit Log</h2>
+          <p class="subtitle">Lịch sử hoạt động và thay đổi trong hệ thống</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-value">{{entries.length}}</span>
+          <span class="stat-label">Tổng bản ghi</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{filtered.length}}</span>
+          <span class="stat-label">Hiển thị</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-audit-log-filter (filterChange)="onFilter($event)"></app-audit-log-filter>
+
+  <div class="grid">
+    <div class="left">
+      <app-audit-log-table [entries]="filtered" (view)="onView($event)"></app-audit-log-table>
+    </div>
+    <div class="right">
+      <app-audit-log-detail [entry]="selected"></app-audit-log-detail>
+    </div>
+  </div>
+</div>

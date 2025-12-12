@@ -1,16 +1,25 @@
 .footer {
-  position: relative;
-  left: 0;
+  position: fixed;
+  bottom: 0;
+  left: 280px;
   right: 0;
+  height: 68px;
   background: linear-gradient(135deg, rgba(249, 250, 251, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
   backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid rgba(229, 231, 235, 0.6);
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.03);
-  padding: 20px 32px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 12px 24px;
+  transition: left 0.32s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  z-index: 40;
 
   &.sidebar-collapsed {
+    left: 72px;
+  }
+
+  @media (max-width: 768px) {
     left: 0;
+    right: 0;
+    border-radius: 0;
   }
 }
 
@@ -19,13 +28,13 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 16px;
 }
 
 .footer-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .footer-version {
@@ -50,7 +59,7 @@
 .footer-links {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .footer-link {
@@ -58,45 +67,29 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
+}
 
-  .material-icons {
-    font-size: 18px;
-  }
+.footer-link .material-icons {
+  font-size: 18px;
+}
 
-  .footer {
-    position: relative;
-    left: 0;
-    right: 0;
-    background: linear-gradient(180deg, rgba(249,250,251,1) 0%, rgba(243,244,246,1) 100%);
-    border-top: 1px solid rgba(229,231,235,0.9);
-    padding: 16px 24px;
-    transition: left 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s ease;
-
-    // When sidebar is collapsed
-    &.sidebar-collapsed {
-      left: 0;
-      background: linear-gradient(180deg, rgba(249,250,251,0.98) 0%, rgba(249,250,251,0.98) 100%);
-    }
-  }
-  .footer {
-    left: 0;
-  }
-
+/* mobile layout adjustments for footer content */
+@media (max-width: 768px) {
   .footer-content {
     flex-direction: column;
     text-align: center;
-    gap: 16px;
+    gap: 8px;
   }
 
   .footer-left {
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
   .footer-links {

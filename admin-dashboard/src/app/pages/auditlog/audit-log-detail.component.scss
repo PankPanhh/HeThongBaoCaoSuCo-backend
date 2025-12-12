@@ -1,0 +1,209 @@
+.audit-detail {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+  position: sticky;
+  top: 20px;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.detail-header .material-icons {
+  color: #3b82f6;
+  font-size: 24px;
+}
+
+.detail-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-section {
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.item-label .material-icons {
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+.item-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.user-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.user-name-lg {
+  font-weight: 700;
+  font-size: 16px;
+  color: #111827;
+}
+
+.user-id {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.action-badge-lg {
+  display: inline-flex;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.change-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.change-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.change-box.old {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.change-box.new {
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+}
+
+.change-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.change-box.old .change-label {
+  color: #991b1b;
+}
+
+.change-box.new .change-label {
+  color: #065f46;
+}
+
+.change-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.change-box.old .change-text {
+  color: #dc2626;
+}
+
+.change-box.new .change-text {
+  color: #059669;
+}
+
+.change-arrow {
+  font-size: 24px;
+  color: #6b7280;
+  align-self: center;
+}
+
+.device-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.device-icon {
+  font-size: 28px;
+  color: #6b7280;
+}
+
+.note-content {
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-style: italic;
+  color: #374151;
+}
+
+.empty-detail {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-detail .material-icons {
+  font-size: 64px;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.empty-detail p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
