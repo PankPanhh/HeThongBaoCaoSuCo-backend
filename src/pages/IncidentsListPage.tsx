@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Page, Box, Text, Header, Icon } from 'zmp-ui'; 
+import { Page, Box, Text, Header, Icon } from 'zmp-ui';
+import { useNavigate } from 'react-router-dom';
 import IncidentFilterBar from '../components/Incidents/IncidentFilterBar';
 import IncidentList from '../components/Incidents/IncidentList';
 import { Incident } from '@/types/incident';
@@ -23,13 +24,10 @@ const fetchIncidents = (filters: any, page: number, pageSize: number): { inciden
   return { incidents, hasMore };
 };
 
-const useNavigateToDetail = (id: string) => {
-    window.location.href = `/incidents/${id}`;
-};
-
 const PAGE_SIZE = 5;
 
 const IncidentsListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ status: 'all', type: 'all' });
@@ -99,7 +97,7 @@ const IncidentsListPage: React.FC = () => {
   };
   
   const handleItemClick = (id: string) => {
-    useNavigateToDetail(id);
+    navigate(`/incidents/${id}`);
   };
 
   return (

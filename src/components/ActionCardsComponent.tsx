@@ -1,16 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ActionCardsComponentProps {
   onTrackProgressClick?: () => void;
 }
 
 const ActionCardsComponent: React.FC<ActionCardsComponentProps> = ({ onTrackProgressClick }) => {
+  const navigate = useNavigate();
+
   const actions = [
     {
       icon: '🚨',
       title: 'Báo cáo sự cố',
       description: 'Gửi báo cáo mới (ảnh, video, GPS)',
-      onClick: () => console.log('Báo cáo sự cố'),
+      onClick: () => {
+        navigate('/report/flood');
+      },
     },
     {
       icon: '🔄',
@@ -24,14 +29,7 @@ const ActionCardsComponent: React.FC<ActionCardsComponentProps> = ({ onTrackProg
       title: 'Chat hỗ trợ',
       description: 'Trao đổi trực tiếp với bộ phận xử lý',
       onClick: () => {
-        // navigate to support chat page within the app
-        try {
-          window.history.pushState({}, '', '/support-chat');
-          window.dispatchEvent(new PopStateEvent('popstate'));
-        } catch (e) {
-          // fallback full navigation
-          window.location.href = '/support-chat';
-        }
+        navigate('/support-chat');
       },
     },
   ];

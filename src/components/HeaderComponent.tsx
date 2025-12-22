@@ -1,21 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 import NotificationComponent, { NotificationItem } from './ProgressAndNotification/NotificationComponent';
+import Logo from './logo';
 
 const HeaderComponent: React.FC = () => {
   // mock user (replace with real auth data)
-  const user = { name: 'Phạm Nguyễn Ngọc Cường', avatar: 'www/assets/avatar.jpg'};
+  const user = { name: 'Phạm Nguyễn Ngọc Cường', avatar: '/static/user.jpg'};
+  const [logoError, setLogoError] = useState(false);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handleClickOutside(e: MouseEvent | TouchEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   // Mock notifications (có thể thay bằng props hoặc state động)
@@ -37,7 +43,16 @@ const HeaderComponent: React.FC = () => {
     <header className="flex items-center justify-between py-4" style={{paddingTop: '3rem'}}>
       <div className="flex items-center space-x-4">
         <div className="w-12 h-12 rounded-md flex items-center justify-center" style={{ background: 'transparent' }}>
-          <img src="./www/assets/logo.jpg" alt="Logo cơ quan" className="max-w-full max-h-full object-contain rounded-full" />
+          {!logoError ? (
+            <img
+              src="/static/logo.png"
+              alt="Logo cơ quan"
+              className="max-w-full max-h-full object-contain rounded-full"
+              onError={() => setLogoError(true)}
+            />
+          ) : (
+            <Logo />
+          )}
         </div>
         <div>
           <h1 className="text-lg font-semibold text-gray-800">Hệ thống báo cáo sự cố</h1>
