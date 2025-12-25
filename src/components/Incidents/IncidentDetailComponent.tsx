@@ -33,10 +33,10 @@ const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
   const resolveUrl = (path: string) => {
     if (/^(https?:|data:)/.test(path)) return path;
     if (path.includes('/assets/image/incidents/')) {
-      const devPath = path.replace('/assets/image/incidents/', '/static/incidents/');
-      return window.location.origin + devPath;
+      return path.replace('/assets/image/incidents/', '/static/incidents/');
     }
-    return window.location.origin + (path.startsWith('/') ? path : ('/' + path));
+    // Trả về đường dẫn tương đối thay vì tuyệt đối để tương thích với Zalo Mini App
+    return path.startsWith('/') ? path : ('/' + path);
   };
 
   const mediaUrls = (incident.media || []).map((m) => resolveUrl(m));
@@ -130,7 +130,8 @@ const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
                       onError={(e) => {
                         const target = e.currentTarget as HTMLImageElement;
                         if (target.src.includes('/static/incidents/')) {
-                          target.src = window.location.origin + (incident.media && incident.media[idx] ? incident.media[idx] : '');
+                          // Sử dụng đường dẫn tương đối thay vì tuyệt đối
+                          target.src = incident.media && incident.media[idx] ? incident.media[idx] : '';
                         } else if (target.src !== placeholder) {
                           target.src = placeholder;
                         }

@@ -1,16 +1,41 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
+// Layout Components
+import { LayoutComponent } from './layout/layout.component';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { HeaderComponent } from './layout/header/header.component';
+import { FooterComponent } from './layout/footer/footer.component';
+
+// Page Components
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { AuditLogPageComponent } from './pages/auditlog/audit-log-page.component';
+import { AuditLogFilterComponent } from './pages/auditlog/audit-log-filter.component';
+import { AuditLogTableComponent } from './pages/auditlog/audit-log-table.component';
+import { AuditLogDetailComponent } from './pages/auditlog/audit-log-detail.component';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LayoutComponent,
+    SidebarComponent,
+    HeaderComponent,
+    FooterComponent,
+    DashboardComponent
+    ,
+    AuditLogPageComponent,
+    AuditLogFilterComponent,
+    AuditLogTableComponent,
+    AuditLogDetailComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

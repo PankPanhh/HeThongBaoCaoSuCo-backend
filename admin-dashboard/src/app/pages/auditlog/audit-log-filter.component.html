@@ -1,0 +1,44 @@
+<div class="audit-filter">
+  <div class="filter-header">
+    <span class="material-icons">filter_list</span>
+    <h3>Bộ lọc</h3>
+  </div>
+  <div class="filter-content">
+    <div class="row">
+      <div class="input-group">
+        <span class="material-icons">search</span>
+        <input placeholder="Tìm kiếm theo từ khóa..." [(ngModel)]="q" (ngModelChange)="apply()" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <span class="material-icons">person</span>
+        <input placeholder="Người thực hiện" [(ngModel)]="user" (ngModelChange)="apply()" />
+      </div>
+      <div class="input-group">
+        <span class="material-icons">label</span>
+        <input placeholder="Hành động" [(ngModel)]="action" (ngModelChange)="apply()" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="input-group">
+        <span class="material-icons">event</span>
+        <input type="datetime-local" [(ngModel)]="from" placeholder="Từ ngày" />
+      </div>
+      <div class="input-group">
+        <span class="material-icons">event</span>
+        <input type="datetime-local" [(ngModel)]="to" placeholder="Đến ngày" />
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-secondary" (click)="reset()">
+        <span class="material-icons">refresh</span>
+        Reset
+      </button>
+      <button class="btn-primary" (click)="apply()">
+        <span class="material-icons">search</span>
+        Tìm kiếm
+      </button>
+    </div>
+  </div>
+</div>

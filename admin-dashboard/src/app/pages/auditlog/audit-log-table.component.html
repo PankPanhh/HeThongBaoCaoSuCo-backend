@@ -1,0 +1,79 @@
+<div class="table-container">
+  <div class="table-header">
+    <h3>Danh sách hoạt động</h3>
+    <div class="table-actions">
+      <button class="btn-icon" title="Làm mới">
+        <span class="material-icons">refresh</span>
+      </button>
+      <button class="btn-icon" title="Xuất báo cáo">
+        <span class="material-icons">download</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="table-wrapper" *ngIf="entries.length > 0">
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th><span class="material-icons">schedule</span> Thời gian</th>
+          <th><span class="material-icons">person</span> Người thực hiện</th>
+          <th><span class="material-icons">label</span> Hành động</th>
+          <th><span class="material-icons">description</span> Đối tượng</th>
+          <th><span class="material-icons">compare_arrows</span> Thay đổi</th>
+          <th><span class="material-icons">devices</span> Thiết bị</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of entries" class="table-row">
+          <td class="time-col">
+            <div class="time-display">
+              <span class="material-icons">access_time</span>
+              {{e.timestamp}}
+            </div>
+          </td>
+          <td class="user-col">
+            <div class="user-info">
+              <div class="user-avatar">{{e.userName.charAt(0)}}</div>
+              <div>
+                <div class="user-name">{{e.userName}}</div>
+                <div class="muted">{{e.userId}}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="action-badge">{{e.action}}</span></td>
+          <td class="target-col">{{e.target}}</td>
+          <td class="change-col" *ngIf="e.oldValue || e.newValue">
+            <div class="change-wrapper">
+              <span class="old-value">{{e.oldValue || '—'}}</span>
+              <span class="material-icons arrow">arrow_forward</span>
+              <span class="new-value">{{e.newValue || '—'}}</span>
+            </div>
+          </td>
+          <td class="change-col" *ngIf="!e.oldValue && !e.newValue">—</td>
+          <td class="device-col">
+            <div class="device-info">
+              <span class="material-icons">{{e.device === 'Web' ? 'computer' : 'phone_iphone'}}</span>
+              <div>
+                <div>{{e.device}}</div>
+                <div class="muted">{{e.ip}}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <button class="btn-view" (click)="view.emit(e)">
+              <span class="material-icons">visibility</span>
+              Chi tiết
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" *ngIf="entries.length === 0">
+    <span class="material-icons empty-icon">inbox</span>
+    <h3>Không tìm thấy bản ghi</h3>
+    <p>Thử điều chỉnh bộ lọc hoặc xóa điều kiện tìm kiếm</p>
+  </div>
+</div>

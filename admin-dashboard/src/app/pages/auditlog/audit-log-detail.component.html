@@ -1,0 +1,113 @@
+<div class="audit-detail">
+  <div class="detail-header">
+    <span class="material-icons">info</span>
+    <h3>Chi tiết hoạt động</h3>
+  </div>
+
+  <div class="detail-content" *ngIf="entry">
+    <div class="detail-section">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">schedule</span>
+          Thời gian
+        </div>
+        <div class="item-value">{{entry.timestamp}}</div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">person</span>
+          Người thực hiện
+        </div>
+        <div class="item-value">
+          <div class="user-display">
+            <div class="user-avatar-lg">{{entry.userName.charAt(0)}}</div>
+            <div>
+              <div class="user-name-lg">{{entry.userName}}</div>
+              <div class="user-id">{{entry.userId}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">label</span>
+          Hành động
+        </div>
+        <div class="item-value">
+          <span class="action-badge-lg">{{entry.action}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">description</span>
+          Đối tượng
+        </div>
+        <div class="item-value">{{entry.target}}</div>
+      </div>
+    </div>
+
+    <div class="detail-section" *ngIf="entry.oldValue || entry.newValue">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">compare_arrows</span>
+          Thay đổi
+        </div>
+        <div class="item-value">
+          <div class="change-display">
+            <div class="change-box old">
+              <span class="change-label">Giá trị cũ</span>
+              <span class="change-text">{{entry.oldValue || '—'}}</span>
+            </div>
+            <span class="material-icons change-arrow">arrow_downward</span>
+            <div class="change-box new">
+              <span class="change-label">Giá trị mới</span>
+              <span class="change-text">{{entry.newValue || '—'}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">devices</span>
+          Thiết bị
+        </div>
+        <div class="item-value">
+          <div class="device-display">
+            <span class="material-icons device-icon">{{entry.device === 'Web' ? 'computer' : 'phone_iphone'}}</span>
+            <div>
+              <div>{{entry.device || '—'}}</div>
+              <div class="muted">IP: {{entry.ip || '—'}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section" *ngIf="entry.notes">
+      <div class="detail-item">
+        <div class="item-label">
+          <span class="material-icons">note</span>
+          Ghi chú
+        </div>
+        <div class="item-value note-content">{{entry.notes}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-detail" *ngIf="!entry">
+    <span class="material-icons">touch_app</span>
+    <p>Chọn một bản ghi để xem chi tiết</p>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ALL_MOCK_INCIDENTS from '@/data/mockIncidents';
 import IncidentDetailComponent from '@/components/Incidents/IncidentDetailComponent';
 import { Incident } from '@/types/incident';
@@ -21,10 +22,11 @@ const typeIcon = (type: string) => {
 };
 
 const RecentIncidentsComponent: React.FC = () => {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<Incident | null>(null);
 
   const handleViewAll = () => {
-    window.location.href = '/incidents';
+    navigate('/incidents');
   };
 
   const openDetail = (incident: Incident) => {
