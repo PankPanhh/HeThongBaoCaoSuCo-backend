@@ -21,6 +21,7 @@ const SnackbarProviderComponent = SnackbarProvider as unknown as React.Component
 >;
 import UserProfile from "@/pages/user-profle";
 import IncidentManagement from "@/pages/incident-management";
+import UserReport from "@/pages/user-report";
 
 const Layout = () => {
   return (
@@ -33,6 +34,7 @@ const Layout = () => {
             <Route path="/incidents/:id" element={<IncidentDetailPage />}></Route>
             <Route path="/support-chat" element={<SupportChatPage />}></Route>
             <Route path="/user-profile" element={<UserProfile />}></Route>
+            <Route path="/user-report" element={<UserReport />}></Route>
             <Route
               path="/incident-management"
               element={<IncidentManagement />}
