@@ -1,0 +1,357 @@
+{
+  "incidents": [
+    {
+      "id": "INC-30D156FC",
+      "type": "nuoc",
+      "location": "Vị trí hiện tại",
+      "status": "Đang xử lý",
+      "priority": "MEDIUM",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766731057722-v6udrwn.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T06:37:37.796Z",
+      "createdAt": "2025-12-26T06:37:37.796Z",
+      "updatedAt": "2025-12-26T06:37:37.796Z",
+      "history": [
+        {
+          "time": "2025-12-26T06:37:37.796Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-9E5C28DD",
+      "type": "giao-thong",
+      "location": "Vị trí hiện tại",
+      "status": "Đang xử lý",
+      "priority": "MEDIUM",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766731190637-6fo428.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T06:39:50.659Z",
+      "createdAt": "2025-12-26T06:39:50.659Z",
+      "updatedAt": "2025-12-26T06:39:50.659Z",
+      "history": [
+        {
+          "time": "2025-12-26T06:39:50.659Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-EBBAE53A",
+      "type": "an-ninh",
+      "location": "Vị trí hiện tại",
+      "status": "Đang xử lý",
+      "priority": "HIGH",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766731278595-lvfsax.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T06:41:18.674Z",
+      "createdAt": "2025-12-26T06:41:18.674Z",
+      "updatedAt": "2025-12-26T06:41:18.674Z",
+      "history": [
+        {
+          "time": "2025-12-26T06:41:18.674Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-0697C494",
+      "type": "dien",
+      "location": "Vị trí hiện tại",
+      "status": "Đang xử lý",
+      "priority": "HIGH",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766731427522-y7n1y.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T06:43:47.597Z",
+      "createdAt": "2025-12-26T06:43:47.597Z",
+      "updatedAt": "2025-12-26T06:43:47.597Z",
+      "history": [
+        {
+          "time": "2025-12-26T06:43:47.597Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-C9FFC3F5",
+      "type": "nuoc",
+      "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+      "status": "Đang xử lý",
+      "priority": "MEDIUM",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766731864567-ca6vkd.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T06:51:04.615Z",
+      "createdAt": "2025-12-26T06:51:04.615Z",
+      "updatedAt": "2025-12-26T06:51:04.615Z",
+      "history": [
+        {
+          "time": "2025-12-26T06:51:04.615Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-C1161F35",
+      "type": "nuoc",
+      "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+      "status": "Đang xử lý",
+      "priority": "MEDIUM",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766736809623-lhkfjl.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T08:13:29.693Z",
+      "createdAt": "2025-12-26T08:13:29.693Z",
+      "updatedAt": "2025-12-26T08:13:29.693Z",
+      "history": [
+        {
+          "time": "2025-12-26T08:13:29.693Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-21075E63",
+      "type": "moi-truong",
+      "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+      "status": "Đang xử lý",
+      "priority": "MEDIUM",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766736853872-0o4zp.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T08:14:13.898Z",
+      "createdAt": "2025-12-26T08:14:13.898Z",
+      "updatedAt": "2025-12-26T08:14:13.898Z",
+      "history": [
+        {
+          "time": "2025-12-26T08:14:13.898Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-C0161639",
+      "type": "an-ninh",
+      "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+      "status": "Đang xử lý",
+      "priority": "HIGH",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766736982576-3omdsw.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T08:16:22.653Z",
+      "createdAt": "2025-12-26T08:16:22.653Z",
+      "updatedAt": "2025-12-26T08:16:22.653Z",
+      "history": [
+        {
+          "time": "2025-12-26T08:16:22.653Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    {
+      "id": "INC-C3C8696E",
+      "type": "nuoc",
+      "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+      "status": "Đang xử lý",
+      "priority": "MEDIUM",
+      "description": "",
+      "media": [
+        "/static/incidents/incident-1766737041710-62urj.jpg"
+      ],
+      "source": "ZALO_MINI_APP_QUICK",
+      "time": "2025-12-26T08:17:21.727Z",
+      "createdAt": "2025-12-26T08:17:21.727Z",
+      "updatedAt": "2025-12-26T08:17:21.727Z",
+      "history": [
+        {
+          "time": "2025-12-26T08:17:21.727Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "006e3500-960b-4eef-b882-256f751c06a7",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-30D156FC",
+        "type": "nuoc",
+        "location": "Vị trí hiện tại",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766731057722-v6udrwn.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "MEDIUM",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T06:37:37.796Z"
+    },
+    {
+      "id": "6585ac08-f587-490d-95ba-27de189bb925",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-9E5C28DD",
+        "type": "giao-thong",
+        "location": "Vị trí hiện tại",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766731190637-6fo428.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "MEDIUM",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T06:39:50.659Z"
+    },
+    {
+      "id": "d36d2ad3-af61-4e2a-8a0b-1439361155d2",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-EBBAE53A",
+        "type": "an-ninh",
+        "location": "Vị trí hiện tại",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766731278595-lvfsax.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "HIGH",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T06:41:18.674Z"
+    },
+    {
+      "id": "095481db-9a43-4cec-bf5e-8b881e1a9003",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-0697C494",
+        "type": "dien",
+        "location": "Vị trí hiện tại",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766731427522-y7n1y.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "HIGH",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T06:43:47.597Z"
+    },
+    {
+      "id": "011be279-cade-4124-9c57-36996af90fd2",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-C9FFC3F5",
+        "type": "nuoc",
+        "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766731864567-ca6vkd.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "MEDIUM",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T06:51:04.615Z"
+    },
+    {
+      "id": "e88b2a03-abd4-4479-9842-9119dca9a144",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-C1161F35",
+        "type": "nuoc",
+        "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766736809623-lhkfjl.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "MEDIUM",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T08:13:29.694Z"
+    },
+    {
+      "id": "9a03204c-50a5-4b61-821a-e4045a25c2a6",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-21075E63",
+        "type": "moi-truong",
+        "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766736853872-0o4zp.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "MEDIUM",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T08:14:13.898Z"
+    },
+    {
+      "id": "18b09ea4-1d74-416a-9b2c-f4fd69c5feb8",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-C0161639",
+        "type": "an-ninh",
+        "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766736982576-3omdsw.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "HIGH",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T08:16:22.653Z"
+    },
+    {
+      "id": "91dcb526-5f46-42b1-90fe-02d6bcaa0911",
+      "action": "CREATE_INCIDENT_QUICK",
+      "details": {
+        "incidentId": "INC-C3C8696E",
+        "type": "nuoc",
+        "location": "Ấp 29, Xã Hưng Long, Thành phố Hồ Chí Minh, 71812, Việt Nam",
+        "description": "",
+        "media": [
+          "/static/incidents/incident-1766737041710-62urj.jpg"
+        ],
+        "source": "ZALO_MINI_APP_QUICK",
+        "priority": "MEDIUM",
+        "status": "Đang xử lý"
+      },
+      "createdAt": "2025-12-26T08:17:21.727Z"
+    }
+  ]
+}

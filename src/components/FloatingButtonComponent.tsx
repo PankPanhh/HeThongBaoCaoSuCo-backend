@@ -1,6 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { QuickReportFlow } from './QuickReport';
 
 const FloatingButtonComponent: React.FC = () => {
+  const [showQuickReport, setShowQuickReport] = useState(false);
+
+  // Nếu đang mở Quick Report, hiển thị fullscreen
+  if (showQuickReport) {
+    return (
+      <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
+        <QuickReportFlow onClose={() => setShowQuickReport(false)} />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed right-5 bottom-5 z-50 group">
       {/* Hover label (visible on larger screens) */}
@@ -11,7 +23,7 @@ const FloatingButtonComponent: React.FC = () => {
       </div>
 
       <button
-        onClick={() => console.log('Báo cáo nhanh')}
+        onClick={() => setShowQuickReport(true)}
         aria-label="Báo cáo nhanh"
         title="Báo cáo nhanh"
         className="relative w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-xl flex items-center justify-center focus:outline-none focus:ring-4 focus:ring-blue-300"

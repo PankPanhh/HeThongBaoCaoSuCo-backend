@@ -62,9 +62,19 @@ export default function SupportChat({ incidentId, className, onClose }: Props) {
     const files = Array.from(fileList);
     files.forEach((file) => {
       const id = String(Date.now()) + '-' + Math.random().toString(36).slice(2, 7);
-      const previewUrl = URL.createObjectURL(file);
-      const item = { id, file, previewUrl, progress: 0, status: 'uploading' };
+      const item = { id, file, previewUrl: null as string | null, progress: 0, status: 'uploading' };
       setAttachments((p) => [...p, item]);
+
+      // read file as data URL for preview (avoids blob: CSP issues)
+      const reader = new FileReader();
+      reader.onload = () => {
+        const preview = reader.result as string;
+        setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, previewUrl: preview } : a)));
+      };
+      reader.onerror = () => {
+        // keep previewUrl null on error
+      };
+      reader.readAsDataURL(file);
 
       // simulate upload progress
       let progress = 0;
@@ -74,11 +84,15 @@ export default function SupportChat({ incidentId, className, onClose }: Props) {
         setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, progress } : a)));
         if (progress >= 100) {
           clearInterval(interval as any);
-          // mark done
-          setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'done', progress: 100 } : a)));
-          // add message with image once upload done
-          const m = { id: 'img-' + id, from: 'user', type: 'image', meta: { previewUrl }, time: Date.now(), status: 'sent' };
-          setMessages((p) => [...p, m]);
+          // mark done and append message using the latest attachments state
+          setAttachments((prev) => {
+            const updated = prev.map((a) => (a.id === id ? { ...a, status: 'done', progress: 100 } : a));
+            const item = updated.find((x) => x.id === id);
+            const preview = item?.previewUrl || null;
+            const m = { id: 'img-' + id, from: 'user', type: 'image', meta: { previewUrl: preview }, time: Date.now(), status: 'sent' };
+            setMessages((p) => [...p, m]);
+            return updated;
+          });
         }
       }, 250 + Math.random() * 300);
     });
@@ -86,8 +100,6 @@ export default function SupportChat({ incidentId, className, onClose }: Props) {
 
   function removeAttachment(id: string) {
     // revoke object url
-    const a = attachments.find((x) => x.id === id);
-    if (a?.previewUrl) URL.revokeObjectURL(a.previewUrl);
     setAttachments((p) => p.filter((x) => x.id !== id));
   }
 
