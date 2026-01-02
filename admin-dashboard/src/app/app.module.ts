@@ -17,6 +17,9 @@ import { AuditLogPageComponent } from './pages/auditlog/audit-log-page.component
 import { AuditLogFilterComponent } from './pages/auditlog/audit-log-filter.component';
 import { AuditLogTableComponent } from './pages/auditlog/audit-log-table.component';
 import { AuditLogDetailComponent } from './pages/auditlog/audit-log-detail.component';
+import { IncidentsByAreaComponent } from './pages/incidents/incidents-by-area.component';
+import { IncidentsByStatusComponent } from './pages/incidents/incidents-by-status.component';
+import { IncidentsListComponent } from './pages/incidents/incidents-list.component';
 
 @NgModule({
   declarations: [
@@ -25,19 +28,21 @@ import { AuditLogDetailComponent } from './pages/auditlog/audit-log-detail.compo
     SidebarComponent,
     HeaderComponent,
     FooterComponent,
-    DashboardComponent
-    ,
+    DashboardComponent,
     AuditLogPageComponent,
     AuditLogFilterComponent,
     AuditLogTableComponent,
-    AuditLogDetailComponent
+    AuditLogDetailComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    IncidentsByAreaComponent,
+    IncidentsByStatusComponent,
+    IncidentsListComponent,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

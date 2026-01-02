@@ -1,40 +1,37 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ActionCardsComponentProps {
   onTrackProgressClick?: () => void;
 }
 
-const ActionCardsComponent: React.FC<ActionCardsComponentProps> = ({ onTrackProgressClick }) => {
+const ActionCardsComponent: React.FC<ActionCardsComponentProps> = ({
+  onTrackProgressClick,
+}) => {
   const navigate = useNavigate();
 
   const actions = [
     {
-      icon: '🚨',
-      title: 'Báo cáo sự cố',
-      description: 'Gửi báo cáo mới (ảnh, video, GPS)',
+      icon: "🚨",
+      title: "Báo cáo sự cố",
+      description: "Gửi báo cáo mới (ảnh, video, GPS)",
       onClick: () => {
-        try {
-          window.history.pushState({}, '', '/incident-management');
-          window.dispatchEvent(new PopStateEvent('popstate'));
-        } catch (e) {
-          window.location.href = '/incident-management';
-        }
+        navigate("/user-report");
       },
     },
     {
-      icon: '🔄',
-      title: 'Theo dõi tiến độ',
-      description: 'Xem trạng thái xử lý báo cáo của bạn',
-      onClick: onTrackProgressClick || (() => console.log('Theo dõi tiến độ')),
+      icon: "🔄",
+      title: "Theo dõi tiến độ",
+      description: "Xem trạng thái xử lý báo cáo của bạn",
+      onClick: onTrackProgressClick || (() => console.log("Theo dõi tiến độ")),
     },
-    
+
     {
-      icon: '💬',
-      title: 'Chat hỗ trợ',
-      description: 'Trao đổi trực tiếp với bộ phận xử lý',
+      icon: "💬",
+      title: "Chat hỗ trợ",
+      description: "Trao đổi trực tiếp với bộ phận xử lý",
       onClick: () => {
-        navigate('/support-chat');
+        navigate("/support-chat");
       },
     },
   ];
