@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import * as incidentService from "../services/incidentService.js";
 import * as fileService from "../services/fileService.js";
-import { CreateQuickReportRequest } from "../types/index.js";
+import { CreateQuickReportRequest, IncidentStatus } from "../types/index.js";
 
 /**
  * Upload image cho incident
@@ -246,7 +246,7 @@ export async function updateIncidentStatus(req: Request, res: Response) {
       });
     }
 
-    const incident = await incidentService.updateIncidentStatus(id, status, note);
+    const incident = await incidentService.updateIncidentStatus(id, status as IncidentStatus, note);
 
     res.json({
       success: true,
