@@ -4,27 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import IncidentFilterBar from '../components/Incidents/IncidentFilterBar';
 import IncidentList from '../components/Incidents/IncidentList';
 import { Incident } from '@/types/incident';
-import ALL_MOCK_INCIDENTS from '@/data/mockIncidents';
+import apiFetch from '@/lib/api';
 
-const fetchIncidents = (filters: any, page: number, pageSize: number): { incidents: Incident[], hasMore: boolean } => {
-  let filtered = ALL_MOCK_INCIDENTS.filter(item => {
-    const statusMatch = filters.status === 'all' || item.status === filters.status;
-    const typeMatch = filters.type === 'all' || item.type === filters.type;
-    return statusMatch && typeMatch;
-  });
-  
-  filtered.sort((a, b) => parseInt(b.id) - parseInt(a.id));
-
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const incidents = filtered.slice(start, end);
-  
-  const hasMore = end < filtered.length;
-
-  return { incidents, hasMore };
-};
-
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 const IncidentsListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,47 +17,81 @@ const IncidentsListPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [totalFilteredCount, setTotalFilteredCount] = useState(0);
+  const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
 
-  const loadIncidents = (reset = false) => {
-    setIsLoading(true);
-    const pageToFetch = reset ? 1 : currentPage;
-    
-    setTimeout(() => {
-      let filteredData = ALL_MOCK_INCIDENTS.filter(item => {
-        const statusMatch = filters.status === 'all' || item.status === filters.status;
-        const typeMatch = filters.type === 'all' || item.type === filters.type;
-        return statusMatch && typeMatch;
-      });
-      filteredData.sort((a, b) => parseInt(b.id) - parseInt(a.id));
-      setTotalFilteredCount(filteredData.length); 
-
-      const start = (pageToFetch - 1) * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
-      const resultIncidents = filteredData.slice(start, end);
-      const hasMoreResult = end < filteredData.length;
-
-      if (reset) {
-        setIncidents(resultIncidents);
-        setCurrentPage(1);
-      } else {
-        setIncidents(prev => [...prev, ...resultIncidents]);
-      }
+  // Fetch all incidents from API
+  const fetchAllIncidents = async () => {
+    try {
+      setIsLoading(true);
+      console.log('[IncidentsListPage] Fetching incidents from API...');
       
-      setHasMore(hasMoreResult);
+      const response = await apiFetch('/api/incidents');
+      const result = await response.json();
+      
+      if (result.success && Array.isArray(result.data)) {
+        console.log('[IncidentsListPage] Fetched', result.data.length, 'incidents');
+        setAllIncidents(result.data);
+      } else {
+        console.warn('[IncidentsListPage] API returned no data, using empty array');
+        setAllIncidents([]);
+      }
+    } catch (error) {
+      console.error('[IncidentsListPage] Error fetching incidents:', error);
+      setAllIncidents([]);
+    } finally {
       setIsLoading(false);
-    }, 500); 
+    }
   };
 
+  // Load and filter incidents based on filters
+  const loadIncidents = (reset = false) => {
+    let filtered = allIncidents.filter(item => {
+      const statusMatch = filters.status === 'all' || item.status === filters.status;
+      const typeMatch = filters.type === 'all' || item.type === filters.type;
+      return statusMatch && typeMatch;
+    });
+    
+    // Sort by newest first
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.time).getTime();
+      const dateB = new Date(b.createdAt || b.time).getTime();
+      return dateB - dateA;
+    });
+
+    setTotalFilteredCount(filtered.length);
+
+    const pageToFetch = reset ? 1 : currentPage;
+    const start = (pageToFetch - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    const resultIncidents = filtered.slice(start, end);
+    const hasMoreResult = end < filtered.length;
+
+    if (reset) {
+      setIncidents(resultIncidents);
+      setCurrentPage(1);
+    } else {
+      setIncidents(prev => [...prev, ...resultIncidents]);
+    }
+    
+    setHasMore(hasMoreResult);
+  };
+
+  // Fetch on mount
+  useEffect(() => {
+    fetchAllIncidents();
+  }, []);
+
+  // Filter when all incidents or filters change
   useEffect(() => {
     loadIncidents(true);
-  }, [filters]); 
+  }, [filters, allIncidents]);
 
+  // Load more when page changes
   useEffect(() => {
     if (currentPage > 1) {
-        loadIncidents(false);
+      loadIncidents(false);
     }
   }, [currentPage]);
-  
 
   const handleApplyFilters = (newFilters: any) => {
     setFilters(newFilters);

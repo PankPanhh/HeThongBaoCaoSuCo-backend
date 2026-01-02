@@ -141,8 +141,7 @@ export async function apiFetch(path: string, opts?: RequestInit) {
     console.log(`[apiFetch] Response status: ${response.status} for ${url}`);
 
     if (!response.ok && response.status >= 400) {
-      const text = await response.text().catch(() => '');
-      console.error(`[apiFetch] ❌ HTTP ${response.status}:`, text);
+      console.error(`[apiFetch] ❌ HTTP ${response.status}`);
     }
 
     return response;

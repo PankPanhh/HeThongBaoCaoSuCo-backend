@@ -123,18 +123,27 @@ export async function getAllIncidents(filter?: {
   await initMockPersistence();
   const { incidents } = getCollections();
 
-  const query: any = {};
-  if (filter?.status) query.status = filter.status;
-  if (filter?.type) query.type = filter.type;
-  if (filter?.source) query.source = filter.source;
+  try {
+    const query: any = {};
+    if (filter?.status) query.status = filter.status;
+    if (filter?.type) query.type = filter.type;
+    if (filter?.source) query.source = filter.source;
 
-  const result = await incidents
-    .find(query)
-    .sort({ createdAt: -1 })
-    .toArray();
+    console.log("[getAllIncidents] Query:", query);
 
-  // normalize id
-  return result.map((r: any) => ({ ...r, id: r._id.toString() }));
+    const result = await incidents
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    console.log("[getAllIncidents] Found", result.length, "incidents");
+
+    // normalize id
+    return result.map((r: any) => ({ ...r, id: r._id.toString() }));
+  } catch (error) {
+    console.error("[getAllIncidents] Error:", error);
+    throw error;
+  }
 }
 
 export async function updateIncidentStatus(id: string, status: IncidentStatus, note?: string) {
