@@ -3,6 +3,7 @@ function getApiBaseUrl(): string {
   // Try to get from import.meta.env first (build-time)
   const envBase = import.meta?.env?.VITE_API_BASE;
   if (envBase && envBase.trim()) {
+    console.log("[getApiBaseUrl] Using VITE_API_BASE from env:", envBase.trim());
     return envBase.trim();
   }
   
@@ -14,12 +15,26 @@ function getApiBaseUrl(): string {
       window.location.hostname === '::1';
     
     if (isLocalhost) {
-      // Use relative path - vite proxy will handle it
+      console.log("[getApiBaseUrl] On localhost, using relative paths");
       return "";
+    }
+    
+    // For production (Zalo Mini App on h5.zadn.vn, h5.zdn.vn), use Railway backend
+    const isZaloProduction = 
+      window.location.hostname.includes('h5.zadn.vn') || 
+      window.location.hostname.includes('h5.zdn.vn');
+    
+    if (isZaloProduction) {
+      const railwayBackend = "https://hethongbaocaosuco-backend-production.up.railway.app";
+      console.log("[getApiBaseUrl] On Zalo production, using Railway backend:", railwayBackend);
+      return railwayBackend;
     }
   }
   
-  return "";
+  // Final fallback: use Railway for any non-localhost environment
+  const fallbackBackend = "https://hethongbaocaosuco-backend-production.up.railway.app";
+  console.warn("[getApiBaseUrl] No VITE_API_BASE and not on localhost, using fallback:", fallbackBackend);
+  return fallbackBackend;
 }
 
 // Lightweight fetch wrapper that respects Vite env `VITE_API_BASE` when provided.
