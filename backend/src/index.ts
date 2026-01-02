@@ -77,7 +77,10 @@ app.use(requestLogger);
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
 app.use("/uploads", express.static(UPLOAD_DIR));
 // Serve public static (so images saved to public/static/incident are accessible)
-const PUBLIC_STATIC_DIR = path.join(__dirname, "..", "..", "public", "static");
+// Use absolute path from workspace root to ensure it works in both dev (src/) and prod (dist/)
+const WORKSPACE_ROOT = path.join(__dirname, "..", "..");
+const PUBLIC_STATIC_DIR = path.join(WORKSPACE_ROOT, "public", "static");
+console.log(`[Static Files] Serving /static from: ${PUBLIC_STATIC_DIR}`);
 app.use("/static", express.static(PUBLIC_STATIC_DIR));
 
 // Routes (upload route must come before the body-parser middleware applies)

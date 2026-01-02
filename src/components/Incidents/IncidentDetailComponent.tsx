@@ -21,22 +21,48 @@ const getStatusClasses = (status: Incident['status']) => {
 
 const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
   const statusClasses = getStatusClasses(incident.status);
+  
+  // Format date for display
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleString('vi-VN');
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const displayTime = incident.createdAt ? formatDate(incident.createdAt) : incident.time;
+  
   const history = incident.history && incident.history.length > 0
-    ? incident.history
+    ? incident.history.map(h => ({
+        ...h,
+        time: h.time ? formatDate(h.time) : h.time
+      }))
     : [
-        { time: incident.time, status: incident.status },
+        { time: displayTime, status: incident.status },
       ];
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showFullDesc, setShowFullDesc] = useState(false);
 
   const resolveUrl = (path: string) => {
+    if (!path) return path;
+    
+    // If already absolute URL or data URL, return as-is
     if (/^(https?:|data:)/.test(path)) return path;
+    
+    // Handle old format
     if (path.includes('/assets/image/incidents/')) {
-      return path.replace('/assets/image/incidents/', '/static/incidents/');
+      path = path.replace('/assets/image/incidents/', '/static/incidents/');
     }
-    // Trả về đường dẫn tương đối thay vì tuyệt đối để tương thích với Zalo Mini App
-    return path.startsWith('/') ? path : ('/' + path);
+    
+    // Ensure path starts with /
+    if (!path.startsWith('/')) {
+      path = '/' + path;
+    }
+    
+    // Return relative path for local dev (will be proxied through Vite to backend:3001)
+    return path;
   };
 
   const mediaUrls = (incident.media || []).map((m) => resolveUrl(m));
@@ -75,7 +101,7 @@ const IncidentDetailComponent: React.FC<Props> = ({ incident, onClose }) => {
                   <span className="text-sm leading-none">{statusClasses.icon}</span>
                   <span className="text-sm leading-none">{incident.status}</span>
                 </span>
-                <div className="text-sm text-gray-700 mt-1">{incident.time}</div>
+                <div className="text-sm text-gray-700 mt-1">{displayTime}</div>
               </div>
             </div>
           </div>
