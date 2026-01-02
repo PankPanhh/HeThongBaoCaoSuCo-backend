@@ -12,6 +12,15 @@ export type Incident = {
   location: string;
   status: IncidentStatus;
   time: string;
+  // Priority used by backend: HIGH | MEDIUM | LOW
+  priority?: 'HIGH' | 'MEDIUM' | 'LOW';
+  // Source of the incident (backend may set values like WEB, MOBILE, ZALO_MINI_APP_QUICK)
+  source?: string;
+  // Optional user identifier who submitted the report
+  userId?: string;
+  // Timestamps
+  createdAt?: string;
+  updatedAt?: string;
   description?: string;
   media?: string[]; // placeholder URLs
   mediaCaptions?: string[]; // optional captions matching media indexes

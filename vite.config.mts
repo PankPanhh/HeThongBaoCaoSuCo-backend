@@ -45,12 +45,23 @@ export default () => {
     base: "",
     publicDir: "../public",
     plugins: [zaloMiniApp(), react(), copyStaticFiles()],
+    define: {
+      "import.meta.env.VITE_API_BASE": JSON.stringify(process.env.VITE_API_BASE || "http://localhost:3001"),
+    },
     build: {
       assetsInlineLimit: 0,
     },
     resolve: {
       alias: {
         "@": "/src",
+      },
+    },
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://localhost:3001",
+          changeOrigin: true,
+        },
       },
     },
   });

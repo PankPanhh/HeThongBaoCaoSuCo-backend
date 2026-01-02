@@ -7,7 +7,7 @@ export default function SupportChatPage() {
   const navigate = useNavigate();
   return (
     <Page className="min-h-screen bg-gray-50">
-      <Header title="Hỗ trợ khách hàng" showBackIcon />
+      <Header title="Hỗ trợ người dùng" showBackIcon />
       <div className="w-full h-screen p-0 m-0">
         <SupportChat onClose={() => navigate(-1)} />
       </div>
