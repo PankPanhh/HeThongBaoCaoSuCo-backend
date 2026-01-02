@@ -1,0 +1,122 @@
+{
+  "generatedAt": "2026-01-02T06:10:10.891Z",
+  "database": "zaloapp",
+  "collections": {
+    "users": {
+      "count": 2,
+      "documents": [
+        {
+          "_id": "string",
+          "name": "string",
+          "phone": "string",
+          "email": "user@example.com",
+          "password_hash": "string",
+          "role": "citizen",
+          "is_active": true,
+          "created_at": {}
+        },
+        {
+          "_id": "555edddd",
+          "name": "string",
+          "phone": "string",
+          "email": "danh@example.com",
+          "password_hash": "string",
+          "role": "citizen",
+          "is_active": true,
+          "created_at": {}
+        }
+      ]
+    },
+    "areas": {
+      "count": 1,
+      "documents": [
+        {
+          "_id": 0,
+          "name": "string",
+          "city": "string",
+          "location": {
+            "type": "Point",
+            "coordinates": [
+              0,
+              0
+            ]
+          },
+          "created_at": {}
+        }
+      ]
+    },
+    "user_areas": {
+      "count": 1,
+      "documents": [
+        {
+          "_id": "694cd3c53472a5c7944240e8",
+          "user_id": "string",
+          "area_id": 0
+        }
+      ]
+    },
+    "incident_types": {
+      "count": 0,
+      "documents": []
+    },
+    "incidents": {
+      "count": 1,
+      "documents": [
+        {
+          "_id": "6957604040a4f0da099aae20",
+          "type": "dien",
+          "location": "Vị trí hiện tại",
+          "status": "Đang xử lý",
+          "priority": "HIGH",
+          "description": "123",
+          "media": [
+            "/static/incidents/incident-1767333952307-lind5g.jpg"
+          ],
+          "source": "ZALO_MINI_APP_QUICK",
+          "userId": null,
+          "createdAt": "2026-01-02T06:05:52.400Z",
+          "updatedAt": "2026-01-02T06:05:52.400Z"
+        }
+      ]
+    },
+    "incident_history": {
+      "count": 1,
+      "documents": [
+        {
+          "_id": "6957604040a4f0da099aae21",
+          "incidentId": "6957604040a4f0da099aae20",
+          "time": "2026-01-02T06:05:52.400Z",
+          "status": "Đang xử lý",
+          "note": "Báo cáo được tạo từ Quick Report"
+        }
+      ]
+    },
+    "incident_media": {
+      "count": 1,
+      "documents": [
+        {
+          "_id": "6957604040a4f0da099aae22",
+          "incidentId": "6957604040a4f0da099aae20",
+          "url": "/static/incidents/incident-1767333952307-lind5g.jpg",
+          "createdAt": "2026-01-02T06:05:52.400Z"
+        }
+      ]
+    },
+    "incident_assignments": {
+      "count": 0,
+      "documents": []
+    },
+    "incident_votes": {
+      "count": 0,
+      "documents": []
+    },
+    "alerts": {
+      "count": 0,
+      "documents": []
+    },
+    "support_contacts": {
+      "count": 0,
+      "documents": []
+    }
+  }
+}

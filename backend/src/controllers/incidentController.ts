@@ -127,7 +127,13 @@ export async function createQuickReport(req: Request, res: Response) {
       userId: body.userId,
     });
 
-    console.log(`✅ Incident created: ${incident.id}`);
+    // Normalize ID (service may return `_id` or `id`)
+    const createdId = (incident && (incident.id || (incident._id && incident._id.toString && incident._id.toString()) || incident._id)) || null;
+    if (createdId) {
+      (incident as any).id = createdId;
+    }
+
+    console.log(`✅ Incident created: ${createdId}`);
 
     res.status(201).json({
       success: true,
@@ -190,10 +196,18 @@ export async function getAllIncidents(req: Request, res: Response) {
       source: source as string,
     });
 
+    // Pagination support (optional query params: page, limit)
+    const page = Math.max(1, parseInt((req.query.page as string) || "1", 10));
+    const limit = Math.max(1, parseInt((req.query.limit as string) || "50", 10));
+    const start = (page - 1) * limit;
+    const paged = Array.isArray(incidents) ? incidents.slice(start, start + limit) : [];
+
     res.json({
       success: true,
-      data: incidents,
-      count: incidents.length,
+      data: paged,
+      count: Array.isArray(incidents) ? incidents.length : 0,
+      page,
+      limit,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -219,6 +233,15 @@ export async function updateIncidentStatus(req: Request, res: Response) {
       return res.status(400).json({
         success: false,
         error: "Status required",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // Basic validation: ensure status is a non-empty string
+    if (typeof status !== "string" || !status.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid status",
         timestamp: new Date().toISOString(),
       });
     }

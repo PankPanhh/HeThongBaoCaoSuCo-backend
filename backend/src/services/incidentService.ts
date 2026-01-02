@@ -1,75 +1,35 @@
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
+import { MongoClient, ObjectId } from "mongodb";
 import { IncidentPriority, IncidentStatus } from "../types/index.js";
 
-/**
- * Mock in-memory database for incidents
- * Trong production, thay bằng MongoDB hoặc PostgreSQL
- */
-let incidents: Map<string, any> = new Map();
-let auditLogs: any[] = [];
+const DEFAULT_MONGO_URI =
+  process.env.MONGO_URI ||
+  "mongodb+srv://lephuc_233:abc12345@cluster0.fsajkxk.mongodb.net/";
+const DB_NAME = process.env.MONGO_DB_NAME || "zaloapp";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, "..", "..", "data");
-const DATA_FILE = path.join(DATA_DIR, "mock-incidents.json");
-// Path to frontend mock file in workspace root: /src/data/mockIncidents.ts
-// No frontend mock TS write: persist only to backend data/mock-incidents.json
+let client: MongoClient | null = null;
+let db: any = null;
 
-async function ensureDataDir() {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  } catch (err) {
-    console.error("Failed to create data dir:", err);
-  }
-}
-
-async function saveToDisk() {
-  try {
-    const payload = {
-      incidents: Array.from(incidents.values()),
-      auditLogs,
-    };
-    await ensureDataDir();
-    await fs.writeFile(DATA_FILE, JSON.stringify(payload, null, 2), "utf-8");
-    // Persist only to backend JSON; frontend mock TypeScript is no longer auto-written.
-  } catch (err) {
-    console.error("Failed to write mock data file:", err);
-  }
-}
-
-async function loadFromDisk() {
-  try {
-    const content = await fs.readFile(DATA_FILE, "utf-8");
-    const parsed = JSON.parse(content || "{}");
-    if (Array.isArray(parsed.incidents)) {
-      incidents = new Map(parsed.incidents.map((i: any) => [i.id, i]));
-    }
-    if (Array.isArray(parsed.auditLogs)) {
-      auditLogs = parsed.auditLogs;
-    }
-    console.log(`Loaded ${incidents.size} incidents from mock data file`);
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
-      // No file yet, that's fine
-      incidents = new Map();
-      auditLogs = [];
-      await saveToDisk();
-    } else {
-      console.error("Failed to load mock data file:", err);
-    }
-  }
+function getCollections() {
+  return {
+    incidents: db.collection("incidents"),
+    incident_history: db.collection("incident_history"),
+    incident_media: db.collection("incident_media"),
+  };
 }
 
 export async function initMockPersistence() {
-  await loadFromDisk();
+  if (client && db) return;
+  try {
+    client = new MongoClient(DEFAULT_MONGO_URI);
+    await client.connect();
+    db = client.db(DB_NAME);
+    console.log(`✅ Connected to MongoDB ${DB_NAME}`);
+  } catch (err) {
+    console.error("Failed to connect MongoDB:", err);
+    throw err;
+  }
 }
 
-/**
- * Tạo incident mới
- */
 export async function createIncident(data: {
   type: string;
   location: string;
@@ -80,11 +40,11 @@ export async function createIncident(data: {
   status?: IncidentStatus;
   userId?: string;
 }) {
-  const id = `INC-${uuidv4().substring(0, 8).toUpperCase()}`;
-  const now = new Date().toISOString();
+  await initMockPersistence();
+  const { incidents, incident_history, incident_media } = getCollections();
 
-  const incident = {
-    id,
+  const now = new Date().toISOString();
+  const doc: any = {
     type: data.type,
     location: data.location,
     status: data.status || ("NEW" as IncidentStatus),
@@ -93,165 +53,151 @@ export async function createIncident(data: {
     media: data.media || [],
     source: data.source || "WEB",
     userId: data.userId,
-    time: now,
     createdAt: now,
     updatedAt: now,
-    history: [
-      {
-        time: now,
-        status: data.status || ("NEW" as IncidentStatus),
-        note: "Báo cáo được tạo từ Quick Report",
-      },
-    ],
   };
 
-  incidents.set(id, incident);
+  const result = await incidents.insertOne(doc as any);
+  const insertedId = result.insertedId;
 
-  // Ghi audit log
-  await logAudit("CREATE_INCIDENT_QUICK", { incidentId: id, ...data });
+  // insert history
+  await incident_history.insertOne({
+    incidentId: insertedId,
+    time: now,
+    status: doc.status,
+    note: "Báo cáo được tạo từ Quick Report",
+  });
 
-  // Persist
-  await saveToDisk();
+  // insert media records if any
+  if (Array.isArray(doc.media) && doc.media.length > 0) {
+    const mediaDocs = doc.media.map((m: string) => ({
+      incidentId: insertedId,
+      url: m,
+      createdAt: now,
+    }));
+    await incident_media.insertMany(mediaDocs as any);
+  }
+
+  const incident = await incidents.findOne({ _id: insertedId });
+  if (incident) {
+    (incident as any).id = insertedId.toString();
+  }
+  return incident;
+}
+
+export async function getIncident(id: string) {
+  await initMockPersistence();
+  const { incidents, incident_history, incident_media } = getCollections();
+
+  let _id: any = null;
+  try {
+    _id = new ObjectId(id);
+  } catch (_) {
+    // not an object id
+  }
+
+  const query = _id ? { _id } : { _id: id };
+  const incident = await incidents.findOne(query as any);
+  if (!incident) return null;
+  incident.id = (incident._id && incident._id.toString && incident._id.toString()) || incident._id;
+
+  // attach history
+  const history = await incident_history
+    .find({ incidentId: incident._id })
+    .sort({ time: 1 })
+    .toArray();
+  incident.history = history;
+
+  // attach media
+  const media = await incident_media.find({ incidentId: incident._id }).toArray();
+  incident.media = media.map((m: any) => m.url || m);
 
   return incident;
 }
 
-/**
- * Lấy incident theo ID
- */
-export async function getIncident(id: string) {
-  return incidents.get(id) || null;
-}
-
-/**
- * Lấy tất cả incidents với filter
- */
 export async function getAllIncidents(filter?: {
   status?: IncidentStatus;
   type?: string;
   source?: string;
 }) {
-  let result = Array.from(incidents.values());
+  await initMockPersistence();
+  const { incidents } = getCollections();
 
-  if (filter?.status) {
-    result = result.filter((i) => i.status === filter.status);
-  }
-  if (filter?.type) {
-    result = result.filter((i) => i.type === filter.type);
-  }
-  if (filter?.source) {
-    result = result.filter((i) => i.source === filter.source);
-  }
+  const query: any = {};
+  if (filter?.status) query.status = filter.status;
+  if (filter?.type) query.type = filter.type;
+  if (filter?.source) query.source = filter.source;
 
-  return result.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  const result = await incidents
+    .find(query)
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  // normalize id
+  return result.map((r: any) => ({ ...r, id: r._id.toString() }));
 }
 
-/**
- * Cập nhật trạng thái incident
- */
-export async function updateIncidentStatus(
-  id: string,
-  status: IncidentStatus,
-  note?: string
-) {
-  const incident = incidents.get(id);
-  if (!incident) {
-    throw new Error("Incident not found");
+export async function updateIncidentStatus(id: string, status: IncidentStatus, note?: string) {
+  await initMockPersistence();
+  const { incidents, incident_history } = getCollections();
+
+  let _id: any = null;
+  try {
+    _id = new ObjectId(id);
+  } catch (_) {
+    // handle string id
+    _id = id;
   }
 
   const now = new Date().toISOString();
-  incident.status = status;
-  incident.updatedAt = now;
 
-  if (!incident.history) {
-    incident.history = [];
-  }
-  incident.history.push({
-    time: now,
-    status,
-    note,
-  });
+  const res = await incidents.findOneAndUpdate(
+    { _id },
+    { $set: { status, updatedAt: now } },
+    { returnDocument: "after" as any }
+  );
 
-  incidents.set(id, incident);
+  if (!res.value) throw new Error("Incident not found");
 
-  await logAudit("UPDATE_INCIDENT_STATUS", {
-    incidentId: id,
-    newStatus: status,
-    note,
-  });
+  await incident_history.insertOne({ incidentId: _id, time: now, status, note });
 
-  // Persist
-  await saveToDisk();
-
-  return incident;
+  const updated = res.value;
+  updated.id = updated._id.toString();
+  return updated;
 }
 
-/**
- * Ghi audit log
- */
-export async function logAudit(
-  action: string,
-  details: Record<string, any>
-) {
-  const log = {
-    id: uuidv4(),
-    action,
-    details,
-    createdAt: new Date().toISOString(),
-  };
-
-  auditLogs.push(log);
-
-  // Giữ tối đa 1000 entries
-  if (auditLogs.length > 1000) {
-    auditLogs = auditLogs.slice(-1000);
-  }
-
-  console.log("📝 Audit Log:", log);
+export async function logAudit(action: string, details: Record<string, any>) {
+  await initMockPersistence();
+  const { incident_history } = getCollections();
+  const log = { action, details, createdAt: new Date().toISOString() };
+  await incident_history.insertOne({ ...log, meta: "audit" });
   return log;
 }
 
-/**
- * Lấy audit logs
- */
 export async function getAuditLogs(action?: string) {
-  let result = auditLogs;
+  await initMockPersistence();
+  const { incident_history } = getCollections();
+  const q: any = { meta: "audit" };
+  if (action) q.action = action;
+  return incident_history.find(q).sort({ createdAt: -1 }).limit(100).toArray();
+}
 
-  if (action) {
-    result = result.filter((log) => log.action === action);
+export async function getStatistics() {
+  await initMockPersistence();
+  const { incidents } = getCollections();
+
+  const all = await incidents.find({}).toArray();
+  const totalIncidents = all.length;
+  const byStatus: any = {};
+  const bySource: any = {};
+  const byPriority: any = {};
+
+  for (const i of all) {
+    byStatus[i.status] = (byStatus[i.status] || 0) + 1;
+    bySource[i.source] = (bySource[i.source] || 0) + 1;
+    byPriority[i.priority] = (byPriority[i.priority] || 0) + 1;
   }
 
-  return result.slice(-100).reverse();
+  return { totalIncidents, byStatus, bySource, byPriority };
 }
 
-/**
- * Thống kê
- */
-export async function getStatistics() {
-  const allIncidents = Array.from(incidents.values());
-
-  return {
-    totalIncidents: allIncidents.length,
-    byStatus: {
-      NEW: allIncidents.filter((i) => i.status === "NEW").length,
-      "Đang xử lý": allIncidents.filter((i) => i.status === "Đang xử lý").length,
-      "Đã xử lý": allIncidents.filter((i) => i.status === "Đã xử lý").length,
-      "Đã gửi": allIncidents.filter((i) => i.status === "Đã gửi").length,
-    },
-    bySource: {
-      WEB: allIncidents.filter((i) => i.source === "WEB").length,
-      MOBILE: allIncidents.filter((i) => i.source === "MOBILE").length,
-      ZALO_MINI_APP: allIncidents.filter((i) => i.source === "ZALO_MINI_APP").length,
-      ZALO_MINI_APP_QUICK: allIncidents.filter(
-        (i) => i.source === "ZALO_MINI_APP_QUICK"
-      ).length,
-    },
-    byPriority: {
-      HIGH: allIncidents.filter((i) => i.priority === "HIGH").length,
-      MEDIUM: allIncidents.filter((i) => i.priority === "MEDIUM").length,
-      LOW: allIncidents.filter((i) => i.priority === "LOW").length,
-    },
-  };
-}
