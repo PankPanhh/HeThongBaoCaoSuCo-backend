@@ -44,6 +44,7 @@ export default () => {
     root: "./src",
     base: "",
     publicDir: "../public",
+    envDir: "../",
     plugins: [zaloMiniApp(), react(), copyStaticFiles()],
     define: {
       "import.meta.env.VITE_API_BASE": JSON.stringify(process.env.VITE_API_BASE || "http://localhost:3001"),

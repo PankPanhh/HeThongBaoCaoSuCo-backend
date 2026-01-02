@@ -18,14 +18,22 @@ const IncidentsListPage: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [totalFilteredCount, setTotalFilteredCount] = useState(0);
   const [allIncidents, setAllIncidents] = useState<Incident[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch all incidents from API
   const fetchAllIncidents = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       console.log('[IncidentsListPage] Fetching incidents from API...');
       
       const response = await apiFetch('/api/incidents');
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
       const result = await response.json();
       
       if (result.success && Array.isArray(result.data)) {
@@ -35,8 +43,9 @@ const IncidentsListPage: React.FC = () => {
         console.warn('[IncidentsListPage] API returned no data, using empty array');
         setAllIncidents([]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('[IncidentsListPage] Error fetching incidents:', error);
+      setError(error.message || 'Không thể kết nối đến máy chủ');
       setAllIncidents([]);
     } finally {
       setIsLoading(false);
@@ -156,6 +165,16 @@ const IncidentsListPage: React.FC = () => {
               <div className="p-4">
                 <IncidentFilterBar onApplyFilters={(f:any) => { handleApplyFilters(f); setShowFilters(false); }} />
               </div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="font-semibold mb-1">Lỗi kết nối máy chủ</div>
+            <div className="text-sm">{error}</div>
+            <div className="text-xs mt-2 opacity-70">
+              Gợi ý: Kiểm tra xem backend Railway đã chạy chưa và MongoDB Atlas đã whitelist IP 0.0.0.0/0 chưa.
             </div>
           </div>
         )}

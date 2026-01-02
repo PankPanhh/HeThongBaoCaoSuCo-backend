@@ -20,13 +20,20 @@ function getCollections() {
 export async function initMockPersistence() {
   if (client && db) return;
   try {
-    client = new MongoClient(DEFAULT_MONGO_URI);
+    const maskedUri = DEFAULT_MONGO_URI.replace(/:([^@]+)@/, ":****@");
+    console.log(`[MongoDB] Connecting to ${maskedUri}...`);
+    
+    client = new MongoClient(DEFAULT_MONGO_URI, {
+      connectTimeoutMS: 10000, // 10s timeout
+      serverSelectionTimeoutMS: 10000,
+    });
+    
     await client.connect();
     db = client.db(DB_NAME);
-    console.log(`✅ Connected to MongoDB ${DB_NAME}`);
+    console.log(`✅ Connected to MongoDB database: ${DB_NAME}`);
   } catch (err) {
-    console.error("Failed to connect MongoDB:", err);
-    throw err;
+    console.error("❌ MongoDB Connection Error:", err);
+    throw new Error(`Database connection failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 

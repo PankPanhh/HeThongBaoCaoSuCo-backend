@@ -1,21 +1,53 @@
+/**
+ * CẤU HÌNH BACKEND (Dành cho Developer)
+ * - true: Luôn sử dụng Backend trên Railway (Dữ liệu thật)
+ * - false: Luôn sử dụng Backend Local (localhost:3001)
+ * - null: Tự động nhận diện dựa trên môi trường (Khuyên dùng)
+ */
+const USE_RAILWAY: boolean | null = true; 
+
+const RAILWAY_URL = "https://hethongbaocaosuco-backend-production.up.railway.app";
+
 // Get API_BASE from env or infer from current location
 function getApiBaseUrl(): string {
-  // Try to get from import.meta.env first (build-time)
+  // 0. Ưu tiên cấu hình cứng trong code nếu có
+  if (USE_RAILWAY === true) {
+    console.log("[getApiBaseUrl] Forced RAILWAY backend via code toggle");
+    return RAILWAY_URL;
+  }
+  if (USE_RAILWAY === false) {
+    console.log("[getApiBaseUrl] Forced LOCAL backend via code toggle");
+    return "";
+  }
+
+  // 1. Try to get from import.meta.env first (build-time or .env file)
   const envBase = import.meta?.env?.VITE_API_BASE;
+  
+  // If explicitly set to "local", use empty string (triggers Vite proxy to localhost:3001)
+  if (envBase === 'local') {
+    console.log("[getApiBaseUrl] Forced LOCAL backend via env");
+    return "";
+  }
+
   if (envBase && envBase.trim()) {
-    console.log("[getApiBaseUrl] Using VITE_API_BASE from env:", envBase.trim());
-    return envBase.trim();
+    const trimmed = envBase.trim();
+    // If it's a full URL, use it.
+    if (trimmed.startsWith('http')) {
+      console.log("[getApiBaseUrl] Using VITE_API_BASE from env:", trimmed);
+      return trimmed;
+    }
   }
   
-  // For dev: if on localhost, use vite proxy which forwards to http://localhost:3001
+  // 2. If no env var, check environment
   if (typeof window !== 'undefined') {
     const isLocalhost = 
       window.location.hostname === 'localhost' || 
       window.location.hostname === '127.0.0.1' ||
       window.location.hostname === '::1';
     
+    // If on localhost and no env var, use relative paths (Vite proxy)
     if (isLocalhost) {
-      console.log("[getApiBaseUrl] On localhost, using relative paths");
+      console.log("[getApiBaseUrl] On localhost with no VITE_API_BASE, using relative paths (proxy)");
       return "";
     }
     
@@ -25,16 +57,14 @@ function getApiBaseUrl(): string {
       window.location.hostname.includes('h5.zdn.vn');
     
     if (isZaloProduction) {
-      const railwayBackend = "https://hethongbaocaosuco-backend-production.up.railway.app";
-      console.log("[getApiBaseUrl] On Zalo production, using Railway backend:", railwayBackend);
-      return railwayBackend;
+      console.log("[getApiBaseUrl] On Zalo production, using Railway backend:", RAILWAY_URL);
+      return RAILWAY_URL;
     }
   }
   
-  // Final fallback: use Railway for any non-localhost environment
-  const fallbackBackend = "https://hethongbaocaosuco-backend-production.up.railway.app";
-  console.warn("[getApiBaseUrl] No VITE_API_BASE and not on localhost, using fallback:", fallbackBackend);
-  return fallbackBackend;
+  // 3. Final fallback: use Railway for any non-localhost environment
+  console.warn("[getApiBaseUrl] No VITE_API_BASE and not on localhost, using fallback:", RAILWAY_URL);
+  return RAILWAY_URL;
 }
 
 // Lightweight fetch wrapper that respects Vite env `VITE_API_BASE` when provided.
@@ -140,8 +170,15 @@ export async function apiFetch(path: string, opts?: RequestInit) {
 
     console.log(`[apiFetch] Response status: ${response.status} for ${url}`);
 
-    if (!response.ok && response.status >= 400) {
-      console.error(`[apiFetch] ❌ HTTP ${response.status}`);
+    if (!response.ok) {
+      const text = await response.text();
+      console.error(`[apiFetch] ❌ HTTP ${response.status}:`, text);
+      // Create a new response object because we already consumed the body
+      return new Response(text, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+      });
     }
 
     return response;
