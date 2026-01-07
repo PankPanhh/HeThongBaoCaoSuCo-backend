@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { SidebarService } from '../../layout/sidebar/sidebar.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -76,7 +78,7 @@ import { Component } from '@angular/core';
         <div class="content-card recent-incidents">
           <div class="card-header-row">
             <h3>Sự cố mới nhất</h3>
-            <button class="btn-link">Xem tất cả</button>
+            <button class="btn-link" (click)="viewAllIncidents()">Xem tất cả</button>
           </div>
           <div class="table-responsive">
             <table class="modern-table">
@@ -113,7 +115,7 @@ import { Component } from '@angular/core';
         <!-- Quick Actions / System Status -->
         <div class="side-panel">
           <div class="content-card system-status">
-            <h3>Trạng thái hệ thống</h3>
+            <h3>Trạng thái hệ thống (Chưa phát triển)</h3>
             <div class="status-list">
               <div class="status-item">
                 <div class="status-label">
@@ -730,6 +732,18 @@ import { Component } from '@angular/core';
 })
 export class DashboardComponent {
   today = new Date();
+
+  constructor(
+    private router: Router,
+    private sidebarService: SidebarService
+  ) {}
+
+  viewAllIncidents() {
+    // Mở sidebar và expand menu "Quản lý sự cố"
+    this.sidebarService.openSidebarAndExpandMenu('Quản lý sự cố');
+    // Navigate đến trang incidents
+    this.router.navigate(['/incidents']);
+  }
 
   recentIncidents = [
     { id: '1024', title: 'Ngập lụt đường Nguyễn Huệ', area: 'Quận 1', status: 'new', statusLabel: 'Mới tiếp nhận', time: '10 phút trước' },

@@ -6,6 +6,7 @@ import { AuditLogPageComponent } from './pages/auditlog/audit-log-page.component
 import { IncidentsListComponent } from './pages/incidents/incidents-list.component';
 import { IncidentsByStatusComponent } from './pages/incidents/incidents-by-status.component';
 import { IncidentsByAreaComponent } from './pages/incidents/incidents-by-area.component';
+import { SettingComponent } from './pages/setting/setting.component';
 
 const routes: Routes = [
   {
@@ -36,6 +37,10 @@ const routes: Routes = [
       {
         path: 'incidents-by-area',
         component: IncidentsByAreaComponent,
+      },
+      {
+        path: 'settings',
+        component: SettingComponent,
       },
       // Add more routes here as you create more pages
       // {

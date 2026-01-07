@@ -1,0 +1,405 @@
+<div class="setting-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-left">
+        <span class="material-icons page-icon">settings</span>
+        <div class="header-title">
+          <h1>Cấu hình hệ thống</h1>
+          <p class="subtitle">Quản lý các thiết lập chung cho toàn hệ thống</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button
+          mat-stroked-button
+          class="btn-refresh"
+          type="button"
+          (click)="loadSettings()"
+          [disabled]="loading || saving">
+          <mat-icon>refresh</mat-icon>
+          Làm mới
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          class="btn-save"
+          type="button"
+          (click)="onSubmit()"
+          [disabled]="!isDirty || saving || settingsForm.invalid">
+          <mat-icon>save</mat-icon>
+          {{ saving ? 'Đang lưu...' : 'Lưu cấu hình' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Đang tải cấu hình...</p>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alerts" *ngIf="!loading">
+    <mat-card class="alert alert-success" *ngIf="successMessage">
+      <mat-icon>check_circle</mat-icon>
+      <span>{{ successMessage }}</span>
+    </mat-card>
+
+    <mat-card class="alert alert-error" *ngIf="error">
+      <mat-icon>error</mat-icon>
+      <span>{{ error }}</span>
+    </mat-card>
+  </div>
+
+  <!-- Settings Form -->
+  <form [formGroup]="settingsForm" *ngIf="!loading" class="settings-form">
+
+    <!-- SLA Configuration Section -->
+    <mat-card class="settings-section">
+      <div class="section-header">
+        <div class="section-icon">
+          <span class="material-icons">schedule</span>
+        </div>
+        <div class="section-title">
+          <h3>Cấu hình SLA mặc định</h3>
+          <p class="section-subtitle">Quy chuẩn thời gian xử lý sự cố áp dụng cho toàn hệ thống</p>
+        </div>
+      </div>
+
+      <mat-card-content formGroupName="sla">
+        <div class="form-row">
+          <!-- Response Time -->
+          <div class="form-group">
+            <label class="form-label">
+              Thời gian phản hồi
+              <mat-icon
+                class="info-icon"
+                matTooltip="Thời gian tối đa để đội xử lý phản hồi sau khi nhận sự cố">
+                info
+              </mat-icon>
+            </label>
+            <div class="input-group">
+              <mat-form-field appearance="outline" class="input-number">
+                <input
+                  matInput
+                  type="number"
+                  formControlName="responseTime"
+                  min="1"
+                  placeholder="Nhập thời gian">
+                <mat-error *ngIf="settingsForm.get('sla.responseTime')?.hasError('required')">
+                  Vui lòng nhập thời gian phản hồi
+                </mat-error>
+                <mat-error *ngIf="settingsForm.get('sla.responseTime')?.hasError('min')">
+                  Thời gian phải lớn hơn 0
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="input-unit">
+                <mat-select formControlName="responseUnit">
+                  <mat-option *ngFor="let unit of timeUnits" [value]="unit.value">
+                    {{ unit.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="warning-message" *ngIf="getSLAWarning('responseTime')">
+              <mat-icon>warning</mat-icon>
+              <span>{{ getSLAWarning('responseTime') }}</span>
+            </div>
+          </div>
+
+          <!-- Completion Time -->
+          <div class="form-group">
+            <label class="form-label">
+              Thời gian hoàn thành
+              <mat-icon
+                class="info-icon"
+                matTooltip="Thời gian tối đa để xử lý hoàn tất sự cố">
+                info
+              </mat-icon>
+            </label>
+            <div class="input-group">
+              <mat-form-field appearance="outline" class="input-number">
+                <input
+                  matInput
+                  type="number"
+                  formControlName="completionTime"
+                  min="1"
+                  placeholder="Nhập thời gian">
+                <mat-error *ngIf="settingsForm.get('sla.completionTime')?.hasError('required')">
+                  Vui lòng nhập thời gian hoàn thành
+                </mat-error>
+                <mat-error *ngIf="settingsForm.get('sla.completionTime')?.hasError('min')">
+                  Thời gian phải lớn hơn 0
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="input-unit">
+                <mat-select formControlName="completionUnit">
+                  <mat-option *ngFor="let unit of timeUnits" [value]="unit.value">
+                    {{ unit.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="warning-message" *ngIf="getSLAWarning('completionTime')">
+              <mat-icon>warning</mat-icon>
+              <span>{{ getSLAWarning('completionTime') }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Notification Settings Section -->
+    <mat-card class="settings-section">
+      <div class="section-header">
+        <div class="section-icon notification-icon">
+          <span class="material-icons">notifications</span>
+        </div>
+        <div class="section-title">
+          <h3>Cấu hình thông báo</h3>
+          <p class="section-subtitle">Quản lý các kênh thông báo cho hệ thống</p>
+        </div>
+      </div>
+
+      <mat-card-content formGroupName="notifications">
+        <!-- Master Toggle -->
+        <div class="master-toggle">
+          <mat-slide-toggle
+            formControlName="enabled"
+            color="primary">
+            <strong>Bật thông báo hệ thống</strong>
+          </mat-slide-toggle>
+          <p class="helper-text" *ngIf="!settingsForm.get('notifications.enabled')?.value">
+            <mat-icon class="warning-icon">warning</mat-icon>
+            Hệ thống đang tắt thông báo. Người dùng sẽ không nhận được bất kỳ thông báo nào.
+          </p>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Email Configuration -->
+        <div class="notification-channel" formGroupName="email">
+          <div class="channel-header">
+            <mat-slide-toggle
+              formControlName="enabled"
+              color="primary"
+              [disabled]="!isNotificationChannelEnabled('email')">
+              <div class="channel-title">
+                <mat-icon>email</mat-icon>
+                <strong>Email</strong>
+              </div>
+            </mat-slide-toggle>
+          </div>
+
+          <div class="channel-config" *ngIf="settingsForm.get('notifications.email.enabled')?.value">
+            <div class="config-grid">
+              <div class="config-item">
+                <label class="config-label">SMTP Host</label>
+                <input type="text" class="config-input" formControlName="smtpHost" placeholder="smtp.gmail.com">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">SMTP Port</label>
+                <input type="number" class="config-input" formControlName="smtpPort" placeholder="587">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">SMTP User</label>
+                <input type="text" class="config-input" formControlName="smtpUser" placeholder="system@example.com">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">SMTP Password</label>
+                <input type="password" class="config-input" formControlName="smtpPassword" placeholder="••••••••">
+              </div>
+
+              <div class="config-item config-item-full">
+                <label class="config-label">From Email</label>
+                <input type="email" class="config-input" formControlName="fromEmail" placeholder="noreply@example.com">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- SMS Configuration -->
+        <div class="notification-channel" formGroupName="sms">
+          <div class="channel-header">
+            <mat-slide-toggle
+              formControlName="enabled"
+              color="primary"
+              [disabled]="!isNotificationChannelEnabled('sms')">
+              <div class="channel-title">
+                <mat-icon>sms</mat-icon>
+                <strong>SMS</strong>
+              </div>
+            </mat-slide-toggle>
+          </div>
+
+          <div class="channel-config" *ngIf="settingsForm.get('notifications.sms.enabled')?.value">
+            <div class="config-grid">
+              <div class="config-item config-item-full">
+                <label class="config-label">Nhà cung cấp</label>
+                <input type="text" class="config-input" formControlName="provider" placeholder="Twilio / VNPT / Viettel">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">API Key</label>
+                <input type="text" class="config-input" formControlName="apiKey" placeholder="Nhập API Key">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">API Secret</label>
+                <input type="password" class="config-input" formControlName="apiSecret" placeholder="••••••••">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Zalo Configuration -->
+        <div class="notification-channel" formGroupName="zalo">
+          <div class="channel-header">
+            <mat-slide-toggle
+              formControlName="enabled"
+              color="primary"
+              [disabled]="!isNotificationChannelEnabled('zalo')">
+              <div class="channel-title">
+                <mat-icon>chat</mat-icon>
+                <strong>Zalo OA</strong>
+              </div>
+            </mat-slide-toggle>
+          </div>
+
+          <div class="channel-config" *ngIf="settingsForm.get('notifications.zalo.enabled')?.value">
+            <div class="config-grid">
+              <div class="config-item config-item-full">
+                <label class="config-label">Zalo OA ID</label>
+                <input type="text" class="config-input" formControlName="oaId" placeholder="12345678901234567890">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">App ID</label>
+                <input type="text" class="config-input" formControlName="appId" placeholder="Nhập App ID">
+              </div>
+
+              <div class="config-item">
+                <label class="config-label">App Secret</label>
+                <input type="password" class="config-input" formControlName="appSecret" placeholder="••••••••">
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- UI Configuration Section -->
+    <mat-card class="settings-section">
+      <div class="section-header">
+        <div class="section-icon ui-icon">
+          <span class="material-icons">palette</span>
+        </div>
+        <div class="section-title">
+          <h3>Giao diện & Nhận diện</h3>
+          <p class="section-subtitle">Tùy chỉnh giao diện và logo hệ thống</p>
+        </div>
+      </div>
+
+      <mat-card-content formGroupName="ui">
+        <!-- System Name -->
+        <div class="config-item config-item-full" style="margin-bottom: 24px;">
+          <label class="config-label">Tên hệ thống</label>
+          <input
+            type="text"
+            class="config-input"
+            formControlName="systemName"
+            placeholder="Hệ thống báo cáo sự cố">
+          <div class="error-message" *ngIf="settingsForm.get('ui.systemName')?.hasError('required') && settingsForm.get('ui.systemName')?.touched">
+            Vui lòng nhập tên hệ thống
+          </div>
+        </div>
+
+        <!-- Theme Selection -->
+        <div class="theme-selection">
+          <label class="form-label">Chủ đề giao diện</label>
+          <div class="theme-options">
+            <div
+              *ngFor="let theme of themes"
+              class="theme-option"
+              [class.selected]="settingsForm.get('ui.theme')?.value === theme.value"
+              (click)="onThemeChange(theme.value)">
+              <mat-icon>{{ theme.icon }}</mat-icon>
+              <span>{{ theme.label }}</span>
+              <mat-icon class="check-icon" *ngIf="settingsForm.get('ui.theme')?.value === theme.value">
+                check_circle
+              </mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Logo Upload -->
+        <div class="logo-section">
+          <label class="form-label">Logo hệ thống</label>
+
+          <div class="logo-upload-area">
+            <div class="logo-preview" *ngIf="logoPreview">
+              <img [src]="logoPreview" alt="Logo preview">
+              <button
+                mat-icon-button
+                type="button"
+                class="remove-logo"
+                (click)="resetLogo()"
+                matTooltip="Xóa logo">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <div class="upload-placeholder" *ngIf="!logoPreview">
+              <mat-icon>cloud_upload</mat-icon>
+              <p>Chưa có logo</p>
+            </div>
+
+            <div class="upload-actions">
+              <input
+                type="file"
+                #logoInput
+                accept="image/png,image/jpeg,image/jpg"
+                (change)="onLogoSelected($event)"
+                style="display: none">
+
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="logoInput.click()">
+                <mat-icon>upload</mat-icon>
+                {{ logoPreview ? 'Thay đổi logo' : 'Tải lên logo' }}
+              </button>
+
+              <button
+                mat-stroked-button
+                type="button"
+                *ngIf="logoPreview"
+                (click)="resetLogo()">
+                <mat-icon>restore</mat-icon>
+                Reset về mặc định
+              </button>
+            </div>
+
+            <p class="helper-text">
+              <mat-icon class="info-icon">info</mat-icon>
+              Chấp nhận file PNG, JPG, JPEG. Kích thước tối đa 2MB
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </form>
+</div>
