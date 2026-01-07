@@ -12,7 +12,7 @@ interface MenuItem {
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+  styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
   isCollapsed: boolean = false;
@@ -21,7 +21,7 @@ export class SidebarComponent implements OnInit {
     {
       label: 'Dashboard',
       icon: 'dashboard',
-      route: '/dashboard'
+      route: '/dashboard',
     },
     {
       label: 'Quản lý sự cố',
@@ -31,19 +31,19 @@ export class SidebarComponent implements OnInit {
         {
           label: 'Danh sách sự cố',
           icon: 'list',
-          route: '/incidents'
+          route: '/incidents',
         },
         {
           label: 'Theo trạng thái',
           icon: 'filter_list',
-          route: '/incidents/by-status'
+          route: '/incidents-by-status',
         },
         {
           label: 'Theo khu vực',
           icon: 'location_on',
-          route: '/incidents/by-area'
-        }
-      ]
+          route: '/incidents-by-area',
+        },
+      ],
     },
     {
       label: 'Danh mục hệ thống',
@@ -53,35 +53,35 @@ export class SidebarComponent implements OnInit {
         {
           label: 'Loại sự cố',
           icon: 'label',
-          route: '/incident-types'
+          route: '/incident-types',
         },
         {
           label: 'Khu vực',
           icon: 'map',
-          route: '/areas'
+          route: '/areas',
         },
         {
           label: 'Đội xử lý',
           icon: 'groups',
-          route: '/handler-teams'
-        }
-      ]
+          route: '/handler-teams',
+        },
+      ],
     },
     {
       label: 'Quản lý người dùng',
       icon: 'people',
-      route: '/users'
+      route: '/users',
     },
     {
       label: 'Cấu hình',
       icon: 'settings',
-      route: '/settings'
+      route: '/settings',
     },
     {
       label: 'Nhật ký hệ thống',
       icon: 'history',
-      route: '/audit-log'
-    }
+      route: '/audit-log',
+    },
   ];
 
   ngOnInit(): void {
