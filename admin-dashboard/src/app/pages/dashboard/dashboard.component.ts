@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { SidebarService } from '../../layout/sidebar/sidebar.service';
+import { IncidentService } from '../incidents/incident.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -80,24 +82,52 @@ import { SidebarService } from '../../layout/sidebar/sidebar.service';
             <h3>Sự cố mới nhất</h3>
             <button class="btn-link" (click)="viewAllIncidents()">Xem tất cả</button>
           </div>
-          <div class="table-responsive">
+
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!isLoading && recentIncidents.length === 0" class="empty-state">
+            <span class="material-icons">inbox</span>
+            <p>Chưa có sự cố nào</p>
+          </div>
+
+          <!-- Table -->
+          <div *ngIf="!isLoading && recentIncidents.length > 0" class="table-responsive">
             <table class="modern-table">
               <thead>
                 <tr>
                   <th>ID</th>
                   <th>Sự cố</th>
+                  <th>Mô tả</th>
+                  <th>Hình ảnh</th>
                   <th>Khu vực</th>
                   <th>Trạng thái</th>
                   <th>Thời gian</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let item of recentIncidents">
-                  <td class="id-col">#{{item.id}}</td>
+                <tr *ngFor="let item of recentIncidents" class="table-row">
+                  <td class="id-col">#{{ item.id }}</td>
                   <td class="main-col">
                     <div class="incident-info">
                       <span class="incident-name">{{item.title}}</span>
                     </div>
+                  </td>
+                  <td class="desc-col">{{ item.description || '—' }}</td>
+                  <td class="img-col">
+                    <img
+                      *ngIf="item.imageUrl"
+                      class="thumb clickable"
+                      [src]="item.imageUrl"
+                      alt="ảnh sự cố"
+                      (click)="openImagePreview(item.imageUrl)"
+                      (error)="onImageError($event)"
+                      title="Click để xem ảnh lớn" />
+                    <span *ngIf="!item.imageUrl" class="no-img">—</span>
                   </td>
                   <td>{{item.area}}</td>
                   <td>
@@ -156,6 +186,17 @@ import { SidebarService } from '../../layout/sidebar/sidebar.service';
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div *ngIf="showImagePreview" class="image-modal" (click)="closeImagePreview()">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeImagePreview()">
+          <span class="material-icons">close</span>
+        </button>
+        <img [src]="previewImageUrl" alt="Preview" class="preview-image" />
       </div>
     </div>
   `,
@@ -482,77 +523,222 @@ import { SidebarService } from '../../layout/sidebar/sidebar.service';
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
 
-    /* Modern Table - Premium Style */
+    .table-responsive {
+      overflow-x: auto;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Simple Table */
     .modern-table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
+      border-collapse: collapse;
     }
 
     .modern-table th {
       text-align: left;
-      font-size: 11px;
-      font-weight: 700;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 12px 16px;
-      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-      border-top: 2px solid #e5e7eb;
-      border-bottom: 2px solid #e5e7eb;
-    }
-
-    .modern-table th:first-child {
-      border-left: 2px solid #e5e7eb;
-      border-radius: 12px 0 0 12px;
-    }
-
-    .modern-table th:last-child {
-      border-right: 2px solid #e5e7eb;
-      border-radius: 0 12px 12px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      padding: 12px;
+      background: #f3f4f6;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     .modern-table td {
-      padding: 18px 16px;
-      border-top: 1px solid #f3f4f6;
-      border-bottom: 1px solid #f3f4f6;
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
       font-size: 14px;
       color: #374151;
       background: white;
       transition: all 0.2s ease;
     }
 
-    .modern-table td:first-child {
-      border-left: 1px solid #f3f4f6;
-    }
-
-    .modern-table td:last-child {
-      border-right: 1px solid #f3f4f6;
-    }
-
-    .modern-table tr {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    .modern-table tr:hover {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
     }
 
     .modern-table tr:hover td {
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-      border-color: #bfdbfe;
-      transform: translateX(2px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+      background: transparent;
     }
 
-    .modern-table tr:hover td:first-child {
-      border-radius: 12px 0 0 12px;
+    .modern-table tr:last-child td {
+      border-bottom: none;
     }
 
-    .modern-table tr:hover td:last-child {
-      border-radius: 0 12px 12px 0;
+    /* Loading State */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      color: #6b7280;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-state p {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state .material-icons {
+      font-size: 72px;
+      margin-bottom: 20px;
+      opacity: 0.4;
+    }
+
+    .empty-state p {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    /* Image Preview Modal */
+    .image-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 90vh;
+      animation: zoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .preview-image {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 16px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+      object-fit: contain;
+      display: block;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: -60px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .close-btn:hover {
+      background: white;
+      transform: rotate(90deg) scale(1.15);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .close-btn .material-icons {
+      color: #374151;
+      font-size: 28px;
     }
 
     .id-col {
-      font-family: 'JetBrains Mono', monospace;
+      font-family: monospace;
       color: #6b7280;
       font-weight: 600;
+      word-break: break-all;
+    }
+
+    .desc-col {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .img-col {
+      text-align: center;
+    }
+    .no-img {
+      color: #d1d5db;
+      font-size: 14px;
+    }
+    .img-wrap { display: inline-block; }
+    .thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .thumb.clickable {
+      cursor: pointer;
+    }
+    .thumb.clickable:hover {
+      transform: scale(1.4);
+      border-color: #3b82f6;
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+      z-index: 100;
     }
     .incident-name {
       font-weight: 600;
@@ -730,13 +916,121 @@ import { SidebarService } from '../../layout/sidebar/sidebar.service';
     }
   `]
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   today = new Date();
+  recentIncidents: any[] = [];
+  isLoading = false;
+  showImagePreview = false;
+  previewImageUrl = '';
 
   constructor(
     private router: Router,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private incidentService: IncidentService
   ) {}
+
+  ngOnInit() {
+    this.loadRecentIncidents();
+  }
+
+  openImagePreview(imageUrl: string) {
+    this.previewImageUrl = imageUrl;
+    this.showImagePreview = true;
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeImagePreview() {
+    this.showImagePreview = false;
+    this.previewImageUrl = '';
+    // Restore body scroll
+    document.body.style.overflow = '';
+  }
+
+  onImageError(event: any) {
+    console.error('Image failed to load:', event.target.src);
+    event.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="60" height="60"%3E%3Crect fill="%23e5e7eb" width="60" height="60"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="24"%3E?%3C/text%3E%3C/svg%3E';
+  }
+
+  loadRecentIncidents() {
+    this.isLoading = true;
+    this.incidentService.getRecentIncidents(5).subscribe({
+      next: (incidents) => {
+        console.log('Raw incidents from API:', incidents);
+        this.recentIncidents = incidents.map((inc: any) => {
+          console.log('Mapping incident:', inc.id, 'imageUrl:', inc.imageUrl, 'media:', inc.media);
+          return {
+            id: inc.id || inc._id,
+            title: inc.type || 'Không có tiêu đề',
+            description: inc.description || '',
+            imageUrl: inc.imageUrl || null,
+            area: inc.location || 'Không rõ',
+            status: this.mapStatus(inc.status),
+            statusLabel: this.getStatusLabel(inc.status),
+            time: this.formatTime(inc.createdAt || inc.updatedAt)
+          };
+        });
+        this.isLoading = false;
+        console.log('Loaded recent incidents:', this.recentIncidents);
+      },
+      error: (error) => {
+        console.error('Failed to load incidents:', error);
+        this.isLoading = false;
+        this.recentIncidents = this.getMockIncidents();
+      }
+    });
+  }
+
+  mapStatus(status: string): string {
+    const statusMap: any = {
+      'NEW': 'new',
+      'Mới': 'new',
+      'Đang xử lý': 'processing',
+      'PROCESSING': 'processing',
+      'Đã hoàn thành': 'done',
+      'RESOLVED': 'done',
+      'COMPLETED': 'done'
+    };
+    return statusMap[status] || 'new';
+  }
+
+  getStatusLabel(status: string): string {
+    const labelMap: any = {
+      'NEW': 'Mới tiếp nhận',
+      'Mới': 'Mới tiếp nhận',
+      'Đang xử lý': 'Đang xử lý',
+      'PROCESSING': 'Đang xử lý',
+      'Đã hoàn thành': 'Đã xong',
+      'RESOLVED': 'Đã xong',
+      'COMPLETED': 'Đã xong'
+    };
+    return labelMap[status] || 'Mới tiếp nhận';
+  }
+
+  formatTime(dateString: string): string {
+    if (!dateString) return 'Vừa xong';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Vừa xong';
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    return `${diffDays} ngày trước`;
+  }
+
+  getMockIncidents() {
+    return [
+      { id: '1024abcdef123456', title: 'Ngập lụt đường Nguyễn Huệ', description: 'Nước dâng lên cao, phương tiện không thể đi lại', imageUrl: '/static/incidents/flood.jpg', area: 'Quận 1', status: 'new', statusLabel: 'Mới tiếp nhận', time: '10 phút trước' },
+      { id: '1023abcdef123456', title: 'Cây đổ chắn ngang đường', description: 'Cây to bật gốc chắn ngang, cần xe cẩu', imageUrl: '/static/incidents/tree.jpg', area: 'Quận 3', status: 'processing', statusLabel: 'Đang xử lý', time: '30 phút trước' },
+      { id: '1022abcdef123456', title: 'Hố tử thần xuất hiện', description: 'Mặt đường sụt, nguy hiểm cho xe máy', imageUrl: null, area: 'Thủ Đức', status: 'processing', statusLabel: 'Đang xử lý', time: '1 giờ trước' },
+      { id: '1021abcdef123456', title: 'Đèn đường hỏng hàng loạt', description: 'Nhiều tuyến đường tối do đèn hỏng', imageUrl: '/static/incidents/light.jpg', area: 'Quận 7', status: 'done', statusLabel: 'Đã xong', time: '2 giờ trước' },
+      { id: '1020abcdef123456', title: 'Tắc cống gây ngập cục bộ', description: 'Cống bị rác làm tắc, cần vệ sinh', imageUrl: null, area: 'Bình Thạnh', status: 'done', statusLabel: 'Đã xong', time: '3 giờ trước' },
+    ];
+  }
 
   viewAllIncidents() {
     // Mở sidebar và expand menu "Quản lý sự cố"
@@ -744,12 +1038,4 @@ export class DashboardComponent {
     // Navigate đến trang incidents
     this.router.navigate(['/incidents']);
   }
-
-  recentIncidents = [
-    { id: '1024', title: 'Ngập lụt đường Nguyễn Huệ', area: 'Quận 1', status: 'new', statusLabel: 'Mới tiếp nhận', time: '10 phút trước' },
-    { id: '1023', title: 'Cây đổ chắn ngang đường', area: 'Quận 3', status: 'processing', statusLabel: 'Đang xử lý', time: '30 phút trước' },
-    { id: '1022', title: 'Hố tử thần xuất hiện', area: 'Thủ Đức', status: 'processing', statusLabel: 'Đang xử lý', time: '1 giờ trước' },
-    { id: '1021', title: 'Đèn đường hỏng hàng loạt', area: 'Quận 7', status: 'done', statusLabel: 'Đã xong', time: '2 giờ trước' },
-    { id: '1020', title: 'Tắc cống gây ngập cục bộ', area: 'Bình Thạnh', status: 'done', statusLabel: 'Đã xong', time: '3 giờ trước' },
-  ];
 }

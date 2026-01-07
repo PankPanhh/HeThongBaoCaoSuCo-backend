@@ -221,6 +221,40 @@ export async function getAllIncidents(req: Request, res: Response) {
 }
 
 /**
+ * Lấy sự cố mới nhất cho admin dashboard
+ * GET /api/incidents/recent?limit=10
+ */
+export async function getRecentIncidents(req: Request, res: Response) {
+  try {
+    const limit = Math.max(1, Math.min(50, parseInt((req.query.limit as string) || "10", 10)));
+
+    const incidents = await incidentService.getAllIncidents({});
+
+    // Get the most recent incidents (already sorted by createdAt desc in service)
+    const recent = Array.isArray(incidents) ? incidents.slice(0, limit) : [];
+    
+    // Format each incident for display (ensure description and imageUrl are set)
+    const formatted = recent.map((inc: any) => incidentService.formatIncidentForDisplay(inc));
+
+    console.log(`✅ [getRecentIncidents] Retrieved ${formatted.length} recent incidents`);
+
+    res.json({
+      success: true,
+      data: formatted,
+      count: formatted.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Get recent incidents error:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to get recent incidents",
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+
+/**
  * Cập nhật trạng thái
  * PUT /api/incidents/:id/status
  */
