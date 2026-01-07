@@ -101,7 +101,8 @@ try {
   const raw = fs.readFileSync(SWAGGER_PATH, "utf-8");
   swaggerSpec = JSON.parse(raw);
 } catch (err) {
-  console.warn(`[Swagger] Could not load ${SWAGGER_PATH}:`, err.message || err);
+  const error = err as Error;
+  console.warn(`[Swagger] Could not load ${SWAGGER_PATH}:`, error.message || err);
 }
 if (Object.keys(swaggerSpec).length > 0) {
   app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
