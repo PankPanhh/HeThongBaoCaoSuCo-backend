@@ -22,12 +22,12 @@ export async function initMockPersistence() {
   try {
     const maskedUri = DEFAULT_MONGO_URI.replace(/:([^@]+)@/, ":****@");
     console.log(`[MongoDB] Connecting to ${maskedUri}...`);
-    
+
     client = new MongoClient(DEFAULT_MONGO_URI, {
       connectTimeoutMS: 10000, // 10s timeout
       serverSelectionTimeoutMS: 10000,
     });
-    
+
     await client.connect();
     db = client.db(DB_NAME);
     console.log(`✅ Connected to MongoDB database: ${DB_NAME}`);
@@ -196,6 +196,70 @@ export async function getAuditLogs(action?: string) {
   const q: any = { meta: "audit" };
   if (action) q.action = action;
   return incident_history.find(q).sort({ createdAt: -1 }).limit(100).toArray();
+}
+
+/**
+ * Format incident object for display with proper description and image URL
+ */
+export function formatIncidentForDisplay(incident: any) {
+  if (!incident) return null;
+
+  const formatted = { ...incident };
+
+  // Ensure id field is set
+  if (!formatted.id && formatted._id) {
+    formatted.id = formatted._id.toString ? formatted._id.toString() : formatted._id;
+  }
+
+  // Extract description: prefer description field, then summary, then type
+  formatted.description = formatted.description || formatted.summary || formatted.type || '';
+
+  // Extract first image from media array
+  formatted.imageUrl = null;
+  
+  console.log('[formatIncidentForDisplay] Incident media:', JSON.stringify(formatted.media));
+  
+  if (Array.isArray(formatted.media) && formatted.media.length > 0) {
+    const firstMedia = formatted.media[0];
+    
+    console.log('[formatIncidentForDisplay] First media:', JSON.stringify(firstMedia), 'Type:', typeof firstMedia);
+    
+    // If it's an object with url property, use the url
+    if (typeof firstMedia === 'object' && firstMedia && firstMedia.url) {
+      formatted.imageUrl = firstMedia.url;
+    } else if (typeof firstMedia === 'string') {
+      // If it's a string, use it directly
+      formatted.imageUrl = firstMedia;
+    }
+    
+    console.log('[formatIncidentForDisplay] Extracted imageUrl:', formatted.imageUrl);
+    
+    // Ensure full backend URL for cross-origin requests (admin dashboard runs on different port)
+    if (formatted.imageUrl) {
+      // If it's already a full URL, keep it
+      if (formatted.imageUrl.startsWith('http')) {
+        // Already absolute URL, keep as-is
+      } else if (formatted.imageUrl.startsWith('/static/')) {
+        // Add backend host
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+        formatted.imageUrl = `${backendUrl}${formatted.imageUrl}`;
+      } else if (formatted.imageUrl.startsWith('/')) {
+        // Other absolute path
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+        formatted.imageUrl = `${backendUrl}${formatted.imageUrl}`;
+      } else {
+        // Relative path - assume it's a filename in incidents folder
+        const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+        formatted.imageUrl = `${backendUrl}/static/incidents/${formatted.imageUrl}`;
+      }
+    }
+    
+    console.log('[formatIncidentForDisplay] Final imageUrl:', formatted.imageUrl);
+  } else {
+    console.log('[formatIncidentForDisplay] No media array or empty');
+  }
+
+  return formatted;
 }
 
 export async function getStatistics() {

@@ -4,6 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
+import swaggerUi from "swagger-ui-express";
 import { fileURLToPath } from "url";
 
 dotenv.config();
@@ -73,15 +75,42 @@ if (NODE_ENV === "development") {
 }
 app.use(requestLogger);
 
-// Static files
+// Static files with CORS headers
 const UPLOAD_DIR = process.env.UPLOAD_DIR || "./uploads";
-app.use("/uploads", express.static(UPLOAD_DIR));
+app.use("/uploads", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+}, express.static(UPLOAD_DIR));
+
 // Serve public static (so images saved to public/static/incident are accessible)
 // Use absolute path from workspace root to ensure it works in both dev (src/) and prod (dist/)
 const WORKSPACE_ROOT = path.join(__dirname, "..", "..");
 const PUBLIC_STATIC_DIR = path.join(WORKSPACE_ROOT, "public", "static");
 console.log(`[Static Files] Serving /static from: ${PUBLIC_STATIC_DIR}`);
-app.use("/static", express.static(PUBLIC_STATIC_DIR));
+app.use("/static", (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+}, express.static(PUBLIC_STATIC_DIR));
+
+// Swagger UI (serves OpenAPI spec at /api/docs)
+const SWAGGER_PATH = path.join(__dirname, "swagger.json");
+let swaggerSpec = {};
+try {
+  const raw = fs.readFileSync(SWAGGER_PATH, "utf-8");
+  swaggerSpec = JSON.parse(raw);
+} catch (err) {
+  console.warn(`[Swagger] Could not load ${SWAGGER_PATH}:`, err.message || err);
+}
+if (Object.keys(swaggerSpec).length > 0) {
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+} else {
+  // Provide a lightweight UI that shows an error message when spec missing
+  app.get('/api/docs', (req, res) => {
+    res.status(500).send('Swagger spec not found. Please ensure backend/src/swagger.json exists.');
+  });
+}
 
 // Routes (upload route must come before the body-parser middleware applies)
 app.use("/api", mainRoutes);

@@ -184,7 +184,7 @@ export async function getIncident(req: Request, res: Response) {
 
 /**
  * Lấy tất cả incidents với filter
- * GET /api/incidents?status=NEW&type=dien
+ * GET /api/incidents?status=NEW&type=dien&page=1&limit=50
  */
 export async function getAllIncidents(req: Request, res: Response) {
   try {
@@ -196,16 +196,23 @@ export async function getAllIncidents(req: Request, res: Response) {
       source: source as string,
     });
 
+    // Format incidents with all necessary fields for frontend
+    const formatted = Array.isArray(incidents) 
+      ? incidents.map((inc: any) => incidentService.formatIncidentForDisplay(inc))
+      : [];
+
     // Pagination support (optional query params: page, limit)
     const page = Math.max(1, parseInt((req.query.page as string) || "1", 10));
-    const limit = Math.max(1, parseInt((req.query.limit as string) || "50", 10));
+    const limit = Math.max(1, parseInt((req.query.limit as string) || "100", 10));
     const start = (page - 1) * limit;
-    const paged = Array.isArray(incidents) ? incidents.slice(start, start + limit) : [];
+    const paged = formatted.slice(start, start + limit);
+
+    console.log(`✅ [getAllIncidents] Retrieved ${paged.length} incidents (page ${page}, total: ${formatted.length})`);
 
     res.json({
       success: true,
       data: paged,
-      count: Array.isArray(incidents) ? incidents.length : 0,
+      count: formatted.length,
       page,
       limit,
       timestamp: new Date().toISOString(),
@@ -215,6 +222,40 @@ export async function getAllIncidents(req: Request, res: Response) {
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Failed",
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+
+/**
+ * Lấy sự cố mới nhất cho admin dashboard
+ * GET /api/incidents/recent?limit=10
+ */
+export async function getRecentIncidents(req: Request, res: Response) {
+  try {
+    const limit = Math.max(1, Math.min(50, parseInt((req.query.limit as string) || "10", 10)));
+
+    const incidents = await incidentService.getAllIncidents({});
+
+    // Get the most recent incidents (already sorted by createdAt desc in service)
+    const recent = Array.isArray(incidents) ? incidents.slice(0, limit) : [];
+    
+    // Format each incident for display (ensure description and imageUrl are set)
+    const formatted = recent.map((inc: any) => incidentService.formatIncidentForDisplay(inc));
+
+    console.log(`✅ [getRecentIncidents] Retrieved ${formatted.length} recent incidents`);
+
+    res.json({
+      success: true,
+      data: formatted,
+      count: formatted.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Get recent incidents error:", error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to get recent incidents",
       timestamp: new Date().toISOString(),
     });
   }

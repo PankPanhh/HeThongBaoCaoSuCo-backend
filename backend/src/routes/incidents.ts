@@ -43,13 +43,25 @@ router.post(
 );
 
 /**
+ * Stats - MUST be before /:id route
+ * GET /api/incidents/stats/overview
+ */
+router.get("/stats/overview", incidentController.getStatistics);
+
+/**
+ * Get recent incidents - MUST be before /:id route
+ * GET /api/incidents/recent?limit=10
+ */
+router.get("/recent", incidentController.getRecentIncidents);
+
+/**
  * Get all
  * GET /api/incidents
  */
 router.get("/", incidentController.getAllIncidents);
 
 /**
- * Get by ID
+ * Get by ID - MUST be after specific routes like /recent, /stats
  * GET /api/incidents/:id
  */
 router.get("/:id", incidentController.getIncident);
@@ -66,11 +78,5 @@ router.put(
   ],
   incidentController.updateIncidentStatus
 );
-
-/**
- * Stats
- * GET /api/incidents/stats/overview
- */
-router.get("/stats/overview", incidentController.getStatistics);
 
 export default router;

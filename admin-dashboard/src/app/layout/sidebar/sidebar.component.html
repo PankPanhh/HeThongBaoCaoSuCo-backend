@@ -20,7 +20,6 @@
           [routerLink]="item.route"
           class="nav-link"
           [class.active]="isActiveRoute(item.route)"
-          routerLinkActive="active"
         >
           <span class="material-icons nav-icon">{{ item.icon }}</span>
           <span class="nav-label" *ngIf="!isCollapsed">{{ item.label }}</span>
@@ -30,7 +29,8 @@
         <div *ngIf="item.children" class="nav-group">
           <button
             class="nav-link nav-toggle"
-            [class.active]="item.expanded"
+            [class.active]="isParentActive(item)"
+            [class.expanded]="item.expanded"
             (click)="toggleMenuItem(item)"
           >
             <span class="material-icons nav-icon">{{ item.icon }}</span>
@@ -47,7 +47,6 @@
                 [routerLink]="child.route"
                 class="submenu-link"
                 [class.active]="isActiveRoute(child.route)"
-                routerLinkActive="active"
               >
                 <span class="material-icons submenu-icon">{{ child.icon }}</span>
                 <span class="submenu-label">{{ child.label }}</span>
