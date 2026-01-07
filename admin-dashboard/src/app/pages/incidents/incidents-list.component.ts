@@ -373,14 +373,26 @@ export class IncidentsListComponent implements OnInit {
   }
 
   loadIncidents(): void {
-    this.incidents = this.incidentService.getAllIncidents();
-    this.filteredIncidents = [...this.incidents];
+    this.incidentService.getAllIncidents().subscribe({
+      next: (incidents) => {
+        this.incidents = incidents;
+        this.filteredIncidents = [...this.incidents];
 
-    // Extract unique areas
-    const areas = new Set(
-      this.incidents.map((inc) => inc.area.split(' - ')[0])
-    );
-    this.areaOptions = Array.from(areas).sort();
+        // Extract unique areas
+        const areas = new Set(
+          this.incidents.map((inc) => inc.area.split(' - ')[0])
+        );
+        this.areaOptions = Array.from(areas).sort();
+
+        console.log(`Loaded ${this.incidents.length} incidents from API`);
+      },
+      error: (error) => {
+        console.error('Failed to load incidents:', error);
+        // Keep empty arrays or show error message
+        this.incidents = [];
+        this.filteredIncidents = [];
+      }
+    });
   }
 
   applyFilters(): void {

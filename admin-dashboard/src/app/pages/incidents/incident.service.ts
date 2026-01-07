@@ -180,16 +180,100 @@ export class IncidentService {
     },
   ];
 
-  getAllIncidents(): Incident[] {
-    return [...this.mockIncidents];
+  getAllIncidents(): Observable<Incident[]> {
+    return this.http.get<{ success: boolean; data: any[]; count: number }>(`${this.apiUrl}`)
+      .pipe(
+        map(response => {
+          if (response.success && Array.isArray(response.data)) {
+            return response.data.map(inc => this.mapBackendToFrontend(inc));
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('Error fetching incidents:', error);
+          // Return mock data as fallback
+          return of([...this.mockIncidents]);
+        })
+      );
   }
 
-  getIncidentsByStatus(status: IncidentStatus): Incident[] {
-    return this.mockIncidents.filter((inc) => inc.status === status);
+  getIncidentsByStatus(status: IncidentStatus): Observable<Incident[]> {
+    return this.http.get<{ success: boolean; data: any[] }>(`${this.apiUrl}?status=${status}`)
+      .pipe(
+        map(response => {
+          if (response.success && Array.isArray(response.data)) {
+            return response.data.map(inc => this.mapBackendToFrontend(inc));
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('Error fetching incidents by status:', error);
+          return of(this.mockIncidents.filter((inc) => inc.status === status));
+        })
+      );
   }
 
-  getIncidentsByArea(area: string): Incident[] {
-    return this.mockIncidents.filter((inc) => inc.area.includes(area));
+  getIncidentsByArea(area: string): Observable<Incident[]> {
+    return this.getAllIncidents().pipe(
+      map(incidents => incidents.filter((inc) => inc.area.includes(area)))
+    );
+  }
+
+  /**
+   * Map backend incident data to frontend Incident model
+   */
+  private mapBackendToFrontend(backendInc: any): Incident {
+    return {
+      id: backendInc.id || backendInc._id?.toString() || '',
+      title: backendInc.type || 'Sự cố',
+      description: backendInc.description || '',
+      status: this.mapBackendStatus(backendInc.status),
+      priority: this.mapBackendPriority(backendInc.priority),
+      area: backendInc.location || 'Chưa xác định',
+      type: backendInc.type || 'Khác',
+      reportedBy: backendInc.userId || 'Ẩn danh',
+      reportedDate: backendInc.createdAt ? new Date(backendInc.createdAt) : new Date(),
+      assignedTeam: backendInc.assignedTeam,
+      lastUpdated: backendInc.updatedAt ? new Date(backendInc.updatedAt) : new Date(),
+      images: Array.isArray(backendInc.media) ? backendInc.media : [],
+      notes: Array.isArray(backendInc.notes) ? backendInc.notes : []
+    };
+  }
+
+  /**
+   * Map backend status to frontend IncidentStatus enum
+   */
+  private mapBackendStatus(status: string): IncidentStatus {
+    const statusMap: Record<string, IncidentStatus> = {
+      'NEW': IncidentStatus.NEW,
+      'Mới': IncidentStatus.NEW,
+      'ASSIGNED': IncidentStatus.ASSIGNED,
+      'Đã gửi': IncidentStatus.ASSIGNED,
+      'PROCESSING': IncidentStatus.PROCESSING,
+      'Đang xử lý': IncidentStatus.PROCESSING,
+      'RESOLVED': IncidentStatus.RESOLVED,
+      'Đã giải quyết': IncidentStatus.RESOLVED,
+      'REOPENED': IncidentStatus.REOPENED,
+      'Mở lại': IncidentStatus.REOPENED
+    };
+    return statusMap[status] || IncidentStatus.NEW;
+  }
+
+  /**
+   * Map backend priority to frontend IncidentPriority enum
+   */
+  private mapBackendPriority(priority: string): IncidentPriority {
+    const priorityMap: Record<string, IncidentPriority> = {
+      'LOW': IncidentPriority.LOW,
+      'Thấp': IncidentPriority.LOW,
+      'MEDIUM': IncidentPriority.MEDIUM,
+      'Trung bình': IncidentPriority.MEDIUM,
+      'HIGH': IncidentPriority.HIGH,
+      'Cao': IncidentPriority.HIGH,
+      'URGENT': IncidentPriority.URGENT,
+      'Khẩn cấp': IncidentPriority.URGENT
+    };
+    return priorityMap[priority] || IncidentPriority.MEDIUM;
   }
 
   getIncidentStatsByStatus(): {

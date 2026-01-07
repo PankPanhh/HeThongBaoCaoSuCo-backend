@@ -184,7 +184,7 @@ export async function getIncident(req: Request, res: Response) {
 
 /**
  * Lấy tất cả incidents với filter
- * GET /api/incidents?status=NEW&type=dien
+ * GET /api/incidents?status=NEW&type=dien&page=1&limit=50
  */
 export async function getAllIncidents(req: Request, res: Response) {
   try {
@@ -196,16 +196,23 @@ export async function getAllIncidents(req: Request, res: Response) {
       source: source as string,
     });
 
+    // Format incidents with all necessary fields for frontend
+    const formatted = Array.isArray(incidents) 
+      ? incidents.map((inc: any) => incidentService.formatIncidentForDisplay(inc))
+      : [];
+
     // Pagination support (optional query params: page, limit)
     const page = Math.max(1, parseInt((req.query.page as string) || "1", 10));
-    const limit = Math.max(1, parseInt((req.query.limit as string) || "50", 10));
+    const limit = Math.max(1, parseInt((req.query.limit as string) || "100", 10));
     const start = (page - 1) * limit;
-    const paged = Array.isArray(incidents) ? incidents.slice(start, start + limit) : [];
+    const paged = formatted.slice(start, start + limit);
+
+    console.log(`✅ [getAllIncidents] Retrieved ${paged.length} incidents (page ${page}, total: ${formatted.length})`);
 
     res.json({
       success: true,
       data: paged,
-      count: Array.isArray(incidents) ? incidents.length : 0,
+      count: formatted.length,
       page,
       limit,
       timestamp: new Date().toISOString(),

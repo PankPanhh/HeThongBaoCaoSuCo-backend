@@ -299,86 +299,94 @@ export class IncidentsByStatusComponent implements OnInit {
   }
 
   loadData(): void {
-    const allIncidents = this.incidentService.getAllIncidents();
-    this.totalIncidents = allIncidents.length;
+    this.incidentService.getAllIncidents().subscribe({
+      next: (allIncidents) => {
+        this.totalIncidents = allIncidents.length;
 
-    this.statusGroups = [
-      {
-        status: IncidentStatus.NEW,
-        label: IncidentStatusLabels[IncidentStatus.NEW],
-        count: 0,
-        incidents: [],
-        color: 'border-blue-500',
-        icon: 'new_releases',
-      },
-      {
-        status: IncidentStatus.ASSIGNED,
-        label: IncidentStatusLabels[IncidentStatus.ASSIGNED],
-        count: 0,
-        incidents: [],
-        color: 'border-purple-500',
-        icon: 'send',
-      },
-      {
-        status: IncidentStatus.PROCESSING,
-        label: IncidentStatusLabels[IncidentStatus.PROCESSING],
-        count: 0,
-        incidents: [],
-        color: 'border-orange-500',
-        icon: 'pending',
-      },
-      {
-        status: IncidentStatus.RESOLVED,
-        label: IncidentStatusLabels[IncidentStatus.RESOLVED],
-        count: 0,
-        incidents: [],
-        color: 'border-green-500',
-        icon: 'check_circle',
-      },
-      {
-        status: IncidentStatus.REOPENED,
-        label: IncidentStatusLabels[IncidentStatus.REOPENED],
-        count: 0,
-        incidents: [],
-        color: 'border-red-500',
-        icon: 'refresh',
-      },
-    ];
+        this.statusGroups = [
+          {
+            status: IncidentStatus.NEW,
+            label: IncidentStatusLabels[IncidentStatus.NEW],
+            count: 0,
+            incidents: [],
+            color: 'border-blue-500',
+            icon: 'new_releases',
+          },
+          {
+            status: IncidentStatus.ASSIGNED,
+            label: IncidentStatusLabels[IncidentStatus.ASSIGNED],
+            count: 0,
+            incidents: [],
+            color: 'border-purple-500',
+            icon: 'send',
+          },
+          {
+            status: IncidentStatus.PROCESSING,
+            label: IncidentStatusLabels[IncidentStatus.PROCESSING],
+            count: 0,
+            incidents: [],
+            color: 'border-orange-500',
+            icon: 'pending',
+          },
+          {
+            status: IncidentStatus.RESOLVED,
+            label: IncidentStatusLabels[IncidentStatus.RESOLVED],
+            count: 0,
+            incidents: [],
+            color: 'border-green-500',
+            icon: 'check_circle',
+          },
+          {
+            status: IncidentStatus.REOPENED,
+            label: IncidentStatusLabels[IncidentStatus.REOPENED],
+            count: 0,
+            incidents: [],
+            color: 'border-red-500',
+            icon: 'refresh',
+          },
+        ];
 
-    // Populate groups with incidents
-    allIncidents.forEach((incident) => {
-      const group = this.statusGroups.find((g) => g.status === incident.status);
-      if (group) {
-        group.incidents.push(incident);
-        group.count++;
+        // Populate groups with incidents
+        allIncidents.forEach((incident) => {
+          const group = this.statusGroups.find((g) => g.status === incident.status);
+          if (group) {
+            group.incidents.push(incident);
+            group.count++;
+          }
+        });
+
+        // Sort incidents by date (newest first)
+        this.statusGroups.forEach((group) => {
+          group.incidents.sort(
+            (a, b) =>
+              new Date(b.reportedDate).getTime() -
+              new Date(a.reportedDate).getTime()
+          );
+        });
+
+        // Calculate statistics
+        const newCount =
+          this.statusGroups.find((g) => g.status === IncidentStatus.NEW)?.count ||
+          0;
+        const assignedCount =
+          this.statusGroups.find((g) => g.status === IncidentStatus.ASSIGNED)
+            ?.count || 0;
+        this.needAttention = newCount + assignedCount;
+
+        const resolved =
+          this.statusGroups.find((g) => g.status === IncidentStatus.RESOLVED)
+            ?.count || 0;
+        this.completionRate =
+          this.totalIncidents > 0
+            ? Math.round((resolved / this.totalIncidents) * 100)
+            : 0;
+      },
+      error: (error) => {
+        console.error('Failed to load incidents by status:', error);
+        this.totalIncidents = 0;
+        this.statusGroups = [];
       }
     });
-
-    // Sort incidents by date (newest first)
-    this.statusGroups.forEach((group) => {
-      group.incidents.sort(
-        (a, b) =>
-          new Date(b.reportedDate).getTime() -
-          new Date(a.reportedDate).getTime()
-      );
-    });
-
-    // Calculate statistics
-    const newCount =
-      this.statusGroups.find((g) => g.status === IncidentStatus.NEW)?.count ||
-      0;
-    const assignedCount =
-      this.statusGroups.find((g) => g.status === IncidentStatus.ASSIGNED)
-        ?.count || 0;
-    this.needAttention = newCount + assignedCount;
-
-    const resolved =
-      this.statusGroups.find((g) => g.status === IncidentStatus.RESOLVED)
-        ?.count || 0;
-    this.completionRate =
-      this.totalIncidents > 0
-        ? Math.round((resolved / this.totalIncidents) * 100)
-        : 0;
   }
 
   toggleGroup(status: IncidentStatus): void {

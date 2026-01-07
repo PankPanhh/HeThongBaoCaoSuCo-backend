@@ -420,51 +420,58 @@ export class IncidentsByAreaComponent implements OnInit {
   }
 
   loadData(): void {
-    const allIncidents = this.incidentService.getAllIncidents();
+    this.incidentService.getAllIncidents().subscribe({
+      next: (allIncidents) => {
+        // Extract unique incident types
+        const types = new Set(allIncidents.map((inc) => inc.type));
+        this.incidentTypes = Array.from(types).sort();
 
-    // Extract unique incident types
-    const types = new Set(allIncidents.map((inc) => inc.type));
-    this.incidentTypes = Array.from(types).sort();
+        // Group incidents by area
+        const areaMap = new Map<string, Incident[]>();
+        allIncidents.forEach((incident) => {
+          const baseArea = incident.area.split(' - ')[0];
+          if (!areaMap.has(baseArea)) {
+            areaMap.set(baseArea, []);
+          }
+          areaMap.get(baseArea)!.push(incident);
+        });
 
-    // Group incidents by area
-    const areaMap = new Map<string, Incident[]>();
-    allIncidents.forEach((incident) => {
-      const baseArea = incident.area.split(' - ')[0];
-      if (!areaMap.has(baseArea)) {
-        areaMap.set(baseArea, []);
+        // Create area groups
+        this.areaGroups = Array.from(areaMap.entries()).map(([area, incidents]) => {
+          const highPriorityCount = incidents.filter(
+            (inc) => inc.priority === 'high' || inc.priority === 'urgent'
+          ).length;
+
+          const unresolvedCount = incidents.filter(
+            (inc) => inc.status !== 'resolved'
+          ).length;
+
+          return {
+            area,
+            count: incidents.length,
+            incidents: incidents.sort(
+              (a, b) =>
+                new Date(b.reportedDate).getTime() -
+                new Date(a.reportedDate).getTime()
+            ),
+            highPriorityCount,
+            unresolvedCount,
+          };
+        });
+
+        this.maxCount = Math.max(...this.areaGroups.map((g) => g.count));
+        this.topAreas = [...this.areaGroups]
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3);
+
+        this.applySorting();
+      },
+      error: (error) => {
+        console.error('Failed to load incidents by area:', error);
+        this.areaGroups = [];
+        this.displayedAreaGroups = [];
       }
-      areaMap.get(baseArea)!.push(incident);
     });
-
-    // Create area groups
-    this.areaGroups = Array.from(areaMap.entries()).map(([area, incidents]) => {
-      const highPriorityCount = incidents.filter(
-        (inc) => inc.priority === 'high' || inc.priority === 'urgent'
-      ).length;
-
-      const unresolvedCount = incidents.filter(
-        (inc) => inc.status !== 'resolved'
-      ).length;
-
-      return {
-        area,
-        count: incidents.length,
-        incidents: incidents.sort(
-          (a, b) =>
-            new Date(b.reportedDate).getTime() -
-            new Date(a.reportedDate).getTime()
-        ),
-        highPriorityCount,
-        unresolvedCount,
-      };
-    });
-
-    this.maxCount = Math.max(...this.areaGroups.map((g) => g.count));
-    this.topAreas = [...this.areaGroups]
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
-
-    this.applySorting();
   }
 
   applySorting(): void {
