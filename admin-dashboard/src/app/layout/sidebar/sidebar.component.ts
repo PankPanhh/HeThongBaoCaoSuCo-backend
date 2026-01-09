@@ -78,6 +78,11 @@ export class SidebarComponent implements OnInit {
       route: '/users',
     },
     {
+      label: 'Quản lý tin tức',
+      icon: 'article',
+      route: '/news',
+    },
+    {
       label: 'Cấu hình',
       icon: 'settings',
       route: '/settings',

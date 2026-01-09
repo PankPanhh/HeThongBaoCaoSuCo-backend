@@ -9,7 +9,23 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.error("Error:", err);
+  // Special handling for CORS errors
+  if (err.message === "CORS not allowed") {
+    console.error(`[ERROR] CORS blocked request from: ${req.get('origin') || '(no origin)'}`);
+    console.error(`[ERROR] Request path: ${req.method} ${req.path}`);
+    console.error(`[ERROR] Headers:`, req.headers);
+    
+    return res.status(403).json({
+      success: false,
+      error: "CORS not allowed",
+      message: "Your origin is not allowed. Contact admin to whitelist your domain.",
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // General error logging
+  console.error("[ERROR] Unhandled error:", err);
+  console.error("[ERROR] Stack:", err.stack);
 
   res.status(err.status || 500).json({
     success: false,

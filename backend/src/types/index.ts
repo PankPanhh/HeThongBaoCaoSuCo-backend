@@ -59,3 +59,52 @@ export interface AuditLog {
   details: Record<string, any>;
   createdAt: string;
 }
+
+// Alert/Banner Types
+export type AlertType = "urgent" | "news" | "warning" | "info";
+
+export interface Alert {
+  _id?: string;
+  id?: string;
+  title: string;
+  content: string;
+  type: AlertType;
+  banner_image?: string;
+  gallery?: string[]; // Multiple images/video URLs
+  article_url?: string; // Link to official news article
+  priority: number; // 1 = highest, higher number = lower priority
+  start_time: string; // ISO date string
+  end_time: string; // ISO date string
+  is_active: boolean;
+  created_by?: string;
+  created_at: string;
+  updated_at?: string;
+  deleted_at?: string;
+}
+
+export interface CreateAlertRequest {
+  title: string;
+  content: string;
+  type: AlertType;
+  banner_image?: string;
+  gallery?: string[];
+  article_url?: string;
+  priority: number;
+  start_time: string;
+  end_time: string;
+  is_active?: boolean;
+  created_by?: string;
+}
+
+export interface UpdateAlertRequest {
+  title?: string;
+  content?: string;
+  type?: AlertType;
+  banner_image?: string;
+  gallery?: string[];
+  article_url?: string;
+  priority?: number;
+  start_time?: string;
+  end_time?: string;
+  is_active?: boolean;
+}

@@ -4,7 +4,7 @@
  * - false: Luôn sử dụng Backend Local (localhost:3001)
  * - null: Tự động nhận diện dựa trên môi trường (Khuyên dùng)
  */
-const USE_RAILWAY: boolean | null = true; 
+const USE_RAILWAY: boolean | null = false; 
 
 const RAILWAY_URL = "https://hethongbaocaosuco-backend-production.up.railway.app";
 

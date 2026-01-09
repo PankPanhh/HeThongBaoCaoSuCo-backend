@@ -12,9 +12,12 @@ dotenv.config();
 
 import mainRoutes from "./routes/index.js";
 import incidentRoutes from "./routes/incidents.js";
+import alertRoutes from "./routes/alerts.js";
 import { errorHandler, requestLogger } from "./middleware/index.js";
 import * as fileService from "./services/fileService.js";
 import * as incidentService from "./services/incidentService.js";
+import * as alertService from "./services/alertService.js";
+import { swaggerSpec } from "./swagger.config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,20 +43,28 @@ app.use(cors({
       "http://localhost:3000",
       "http://localhost:2999",
       "http://localhost:4200",
+      "http://localhost:3001", // Swagger UI
       ...extraOrigins,
     ];
     
+    // Log all CORS requests for debugging
+    console.log(`[CORS] Request from origin: ${origin || '(no origin - curl/postman/swagger)'}`);
+    
     if (!origin) {
-      // Allow requests with no Origin header (e.g., same-origin or mobile app requests)
-      callback(null, true);
-    } else if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // Log rejected origin for debugging
-      console.warn(`[CORS] Rejected request from origin: ${origin}`);
-      console.warn(`[CORS] Allowed origins: ${allowedOrigins.join(", ")}`);
-      callback(new Error("CORS not allowed"));
+      // Allow requests with no Origin header (curl, Postman, Swagger, same-origin)
+      console.log('[CORS] ✓ Allowing request with no origin header');
+      return callback(null, true);
     }
+    
+    if (allowedOrigins.includes(origin)) {
+      console.log(`[CORS] ✓ Allowing origin: ${origin}`);
+      return callback(null, true);
+    }
+    
+    // Log rejected origin for debugging
+    console.warn(`[CORS] ✗ Rejected request from origin: ${origin}`);
+    console.warn(`[CORS] Allowed origins: ${allowedOrigins.join(", ")}`);
+    return callback(new Error("CORS not allowed"));
   },
   credentials: true,
 }));
@@ -85,37 +96,79 @@ app.use("/uploads", (req, res, next) => {
 
 // Serve public static (so images saved to public/static/incident are accessible)
 // Use absolute path from workspace root to ensure it works in both dev (src/) and prod (dist/)
-const WORKSPACE_ROOT = path.join(__dirname, "..", "..");
+// __dirname = backend/src, so go up 3 levels to reach project root
+const WORKSPACE_ROOT = path.join(__dirname, "..", "..", "..");
 const PUBLIC_STATIC_DIR = path.join(WORKSPACE_ROOT, "public", "static");
+console.log(`[Static Files] __dirname: ${__dirname}`);
+console.log(`[Static Files] WORKSPACE_ROOT: ${WORKSPACE_ROOT}`);
 console.log(`[Static Files] Serving /static from: ${PUBLIC_STATIC_DIR}`);
+console.log(`[Static Files] Directory exists: ${fs.existsSync(PUBLIC_STATIC_DIR)}`);
 app.use("/static", (req, res, next) => {
+  console.log(`[Static Files] Request: ${req.method} ${req.path}`);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 }, express.static(PUBLIC_STATIC_DIR));
 
-// Swagger UI (serves OpenAPI spec at /api/docs)
-const SWAGGER_PATH = path.join(__dirname, "swagger.json");
-let swaggerSpec = {};
-try {
-  const raw = fs.readFileSync(SWAGGER_PATH, "utf-8");
-  swaggerSpec = JSON.parse(raw);
-} catch (err) {
-  const error = err as Error;
-  console.warn(`[Swagger] Could not load ${SWAGGER_PATH}:`, error.message || err);
-}
-if (Object.keys(swaggerSpec).length > 0) {
-  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-} else {
-  // Provide a lightweight UI that shows an error message when spec missing
-  app.get('/api/docs', (req, res) => {
-    res.status(500).send('Swagger spec not found. Please ensure backend/src/swagger.json exists.');
-  });
-}
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Root endpoint
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: API information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 version:
+ *                   type: string
+ *                 status:
+ *                   type: string
+ */
+
+/**
+ * @swagger
+ * /api/ping:
+ *   get:
+ *     summary: Ping endpoint để kiểm tra kết nối
+ *     tags: [General]
+ *     responses:
+ *       200:
+ *         description: Backend is reachable
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 origin:
+ *                   type: string
+ *                 corsAllowed:
+ *                   type: string
+ */
+
+// Swagger UI - Tự động cập nhật từ JSDoc comments
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Incident Management API Docs"
+}));
 
 // Routes (upload route must come before the body-parser middleware applies)
 app.use("/api", mainRoutes);
 app.use("/api/incidents", incidentRoutes);
+app.use("/api", alertRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -157,6 +210,10 @@ async function startServer() {
     if (typeof incidentService.initMockPersistence === 'function') {
       await incidentService.initMockPersistence();
     }
+    // Initialize alert DB
+    if (typeof alertService.initAlertDB === 'function') {
+      await alertService.initAlertDB();
+    }
     
     app.listen(PORT, () => {
       console.log(`
@@ -169,13 +226,19 @@ async function startServer() {
 ╚════════════════════════════════════════╝
 
 📍 API: http://localhost:${PORT}/api
-📸 Upload: POST /api/incidents/upload-image
+� Swagger Docs: http://localhost:${PORT}/api/docs
+�📸 Upload: POST /api/incidents/upload-image
 📋 Quick Report: POST /api/incidents/quick-report
 📊 Get All: GET /api/incidents
 🔍 Get By ID: GET /api/incidents/:id
 ⚙️  Update: PUT /api/incidents/:id/status
 📈 Stats: GET /api/incidents/stats/overview
 ❤️  Health: GET /api/health
+
+🚨 Alerts API:
+📰 Public Banners: GET /api/public/banners
+🔐 Admin Alerts: GET /api/admin/alerts
+➕ Create Alert: POST /api/admin/alerts
       `);
     });
   } catch (error) {

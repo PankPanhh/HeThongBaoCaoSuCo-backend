@@ -7,6 +7,7 @@ import { IncidentsListComponent } from './pages/incidents/incidents-list.compone
 import { IncidentsByStatusComponent } from './pages/incidents/incidents-by-status.component';
 import { IncidentsByAreaComponent } from './pages/incidents/incidents-by-area.component';
 import { SettingComponent } from './pages/setting/setting.component';
+import { NewsManagementComponent } from './pages/news/news-management.component';
 
 const routes: Routes = [
   {
@@ -41,6 +42,10 @@ const routes: Routes = [
       {
         path: 'settings',
         component: SettingComponent,
+      },
+      {
+        path: 'news',
+        component: NewsManagementComponent,
       },
       // Add more routes here as you create more pages
       // {

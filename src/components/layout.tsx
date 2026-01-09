@@ -15,13 +15,15 @@ import IncidentDetailPage from "@/pages/IncidentDetailPage";
 import SupportChatPage from "@/pages/SupportChatPage";
 import DetailBannerPage from '@/pages/DetailBanner';
 import ReportFloodPage from '@/pages/ReportFlood';
+import AlertDetailPage from '@/pages/AlertDetailPage';
+import QuickReportPage from '@/pages/QuickReportPage';
+import UserReport from "@/pages/user-report";
+import UserProfile from "@/pages/user-profle";
+import IncidentManagement from "@/pages/incident-management";
 
 const SnackbarProviderComponent = SnackbarProvider as unknown as React.ComponentType<
   React.PropsWithChildren<Record<string, unknown>>
 >;
-import UserProfile from "@/pages/user-profle";
-import IncidentManagement from "@/pages/incident-management";
-import UserReport from "@/pages/user-report";
 
 const Layout = () => {
   return (
@@ -35,11 +37,13 @@ const Layout = () => {
             <Route path="/support-chat" element={<SupportChatPage />}></Route>
             <Route path="/user-profile" element={<UserProfile />}></Route>
             <Route path="/user-report" element={<UserReport />}></Route>
+            <Route path="/quick-report" element={<QuickReportPage />}></Route>
             <Route
               path="/incident-management"
               element={<IncidentManagement />}
             ></Route>
             <Route path="/alerts/weather-detail" element={<DetailBannerPage />}></Route>
+            <Route path="/alerts/:alertId" element={<AlertDetailPage />}></Route>
             <Route path="/report/flood" element={<ReportFloodPage />}></Route>
           </AnimationRoutes>
         </ZMPRouter>
