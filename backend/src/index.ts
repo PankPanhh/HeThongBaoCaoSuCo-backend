@@ -96,8 +96,9 @@ app.use("/uploads", (req, res, next) => {
 
 // Serve public static (so images saved to public/static/incident are accessible)
 // Use absolute path from workspace root to ensure it works in both dev (src/) and prod (dist/)
-// __dirname = backend/src, so go up 3 levels to reach project root
-const WORKSPACE_ROOT = path.join(__dirname, "..", "..", "..");
+// __dirname = backend/src or backend/dist, so go up 2 levels to project root
+// dist -> backend -> project root   OR   src -> backend -> project root
+const WORKSPACE_ROOT = path.join(__dirname, "..", "..");  // Goes from backend/dist (or src) -> backend -> project root
 const PUBLIC_STATIC_DIR = path.join(WORKSPACE_ROOT, "public", "static");
 console.log(`[Static Files] __dirname: ${__dirname}`);
 console.log(`[Static Files] WORKSPACE_ROOT: ${WORKSPACE_ROOT}`);

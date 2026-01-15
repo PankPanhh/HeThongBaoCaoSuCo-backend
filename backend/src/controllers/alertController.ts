@@ -47,9 +47,9 @@ export async function uploadAlertImage(req: Request, res: Response) {
     }
 
     // Create news directory if it doesn't exist
-    // __dirname = backend/src/controllers
-    // Go up 3 levels to reach project root
-    const WORKSPACE_ROOT = path.join(__dirname, "..", "..", "..");
+    // __dirname = backend/src/controllers or backend/dist/controllers
+    // Go up 3 levels to reach project root: controllers -> dist -> backend -> project root
+    const WORKSPACE_ROOT = path.join(__dirname, "..", "..", "..");  // controllers -> dist/src -> backend -> project root
     const NEWS_UPLOAD_DIR = path.join(WORKSPACE_ROOT, "public", "static", "news");
     
     console.log(`[uploadAlertImage] __dirname: ${__dirname}`);
