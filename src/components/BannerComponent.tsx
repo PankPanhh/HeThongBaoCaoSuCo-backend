@@ -45,6 +45,38 @@ const BannerComponent: React.FC<BannerComponentProps> = ({ show }) => {
 
   const currentBanner = banners[currentIndex];
 
+  // Get type label
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'urgent':
+        return 'KHẨN CẤP';
+      case 'warning':
+        return 'CẢNH BÁO';
+      case 'news':
+        return 'TIN TỨC';
+      case 'info':
+        return 'THÔNG TIN';
+      default:
+        return 'THÔNG BÁO';
+    }
+  };
+
+  // Get badge colors
+  const getBadgeColor = (type: string) => {
+    switch (type) {
+      case 'urgent':
+        return 'bg-red-600';
+      case 'warning':
+        return 'bg-amber-500';
+      case 'news':
+        return 'bg-blue-600';
+      case 'info':
+        return 'bg-gray-600';
+      default:
+        return 'bg-blue-600';
+    }
+  };
+
   // Get appropriate emoji/icon based on banner type
   const getIcon = (type: string) => {
     switch (type) {
@@ -108,40 +140,117 @@ const BannerComponent: React.FC<BannerComponentProps> = ({ show }) => {
   };
 
   return (
-    <div className={`mt-4 p-3 rounded-md border flex items-center justify-between ${getBgColor(currentBanner.type)}`}>
-      <div className="flex items-center space-x-3 flex-1">
-        <div className="text-2xl">{getIcon(currentBanner.type)}</div>
-        <div className="flex-1">
-          <div className={`font-medium ${getTextColor(currentBanner.type)}`}>
-            {currentBanner.title}
-          </div>
-          <div className="text-sm text-gray-600 line-clamp-2">
-            {currentBanner.content}
+    <div 
+      className="mt-4 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-shadow hover:shadow-lg"
+      onClick={() => navigate(`/alerts/${currentBanner.id || currentBanner._id}`)}
+    >
+      {/* Banner Image with Overlay Content */}
+      {currentBanner.banner_image ? (
+        <div className="relative w-full h-48">
+          <img
+            src={currentBanner.banner_image}
+            alt={currentBanner.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('Failed to load banner image:', currentBanner.banner_image);
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+          
+          {/* Content Over Image */}
+          <div className="absolute inset-0 flex flex-col justify-end p-4">
+            {/* Type Badge */}
+            <div className="mb-3">
+              <span className={`inline-block px-3 py-1 rounded text-white text-xs font-bold tracking-wider ${getBadgeColor(currentBanner.type)}`}>
+                {getTypeLabel(currentBanner.type)}
+              </span>
+            </div>
+            
+            {/* Title */}
+            <h3 className="text-white font-bold text-lg mb-1 line-clamp-2 drop-shadow-lg">
+              {currentBanner.title}
+            </h3>
+
+            {/* Content Preview */}
+            <p className="text-white/90 text-sm line-clamp-1 drop-shadow-md mb-3">
+              {currentBanner.content}
+            </p>
+
+            {/* Footer on Image */}
+            <div className="flex items-center justify-between">
+              {/* Navigation Dots */}
+              {banners.length > 1 && (
+                <div className="flex gap-1.5">
+                  {banners.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentIndex(idx);
+                      }}
+                      className={`h-1.5 rounded-full transition-all ${
+                        idx === currentIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50'
+                      }`}
+                      aria-label={`Go to banner ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* View Link */}
+              <span className="text-white text-sm font-medium flex items-center gap-1">
+                Xem chi tiết
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        {banners.length > 1 && (
-          <div className="flex items-center gap-1 mr-2">
-            {banners.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  idx === currentIndex ? 'bg-gray-600 w-4' : 'bg-gray-300'
-                }`}
-                aria-label={`Go to banner ${idx + 1}`}
-              />
-            ))}
+      ) : (
+        /* Fallback for banners without image */
+        <div className="p-4">
+          <div className="mb-3">
+            <span className={`inline-block px-3 py-1 rounded text-white text-xs font-bold tracking-wider ${getBadgeColor(currentBanner.type)}`}>
+              {getTypeLabel(currentBanner.type)}
+            </span>
           </div>
-        )}
-        <button
-          onClick={() => navigate(`/alerts/${currentBanner.id || currentBanner._id}`)}
-          className={`text-sm font-medium transition-colors ${getButtonColor(currentBanner.type)}`}
-        >
-          Xem chi tiết
-        </button>
-      </div>
+          
+          <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-2">
+            {currentBanner.title}
+          </h3>
+
+          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+            {currentBanner.content}
+          </p>
+
+          <div className="flex items-center justify-between">
+            {banners.length > 1 && (
+              <div className="flex gap-1">
+                {banners.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentIndex(idx);
+                    }}
+                    className={`h-1.5 rounded-full transition-all ${
+                      idx === currentIndex ? 'w-4 bg-blue-600' : 'w-1.5 bg-gray-300'
+                    }`}
+                    aria-label={`Go to banner ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+
+            <span className="text-sm font-medium text-blue-600">
+              Xem chi tiết →
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

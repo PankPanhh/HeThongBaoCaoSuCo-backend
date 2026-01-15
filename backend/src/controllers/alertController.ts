@@ -494,3 +494,63 @@ export async function getBannerDetail(req: Request, res: Response) {
     });
   }
 }
+
+// Get URL metadata for link preview
+export async function getUrlMetadata(req: Request, res: Response) {
+  try {
+    const { url } = req.query;
+    if (!url || typeof url !== 'string') {
+      return res.status(400).json({ success: false, error: "Missing or invalid URL" });
+    }
+
+    // Basic validation
+    try {
+      new URL(url);
+    } catch {
+      return res.status(400).json({ success: false, error: "Invalid URL format" });
+    }
+
+    const response = await fetch(url, { 
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; IncidentBot/1.0)' } 
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Failed to fetch URL: ${response.status}`);
+    }
+    
+    const html = await response.text();
+    
+    // Simple regex extraction
+    const getMeta = (prop: string) => {
+        const match = html.match(new RegExp(`<meta property="${prop}" content="([^"]*)"`, 'i')) 
+                   || html.match(new RegExp(`<meta name="${prop}" content="([^"]*)"`, 'i'));
+        return match ? match[1] : null;
+    };
+    
+    // Title fallback
+    const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
+    const title = getMeta('og:title') || (titleMatch ? titleMatch[1] : '') || '';
+    
+    const description = getMeta('og:description') || getMeta('description') || '';
+    const image = getMeta('og:image') || '';
+    const siteName = getMeta('og:site_name') || new URL(url).hostname;
+
+    res.json({
+      success: true,
+      data: { title, description, image, siteName, url }
+    });
+
+  } catch (error) {
+    console.error('Metadata fetch error:', error);
+    // Return empty data instead of 500 so UI can just show link
+    res.json({
+      success: true,
+      data: { 
+        title: "", 
+        description: "", 
+        image: "", 
+        siteName: req.query.url ? new URL(req.query.url as string).hostname : ""
+      }
+    });
+  }
+}

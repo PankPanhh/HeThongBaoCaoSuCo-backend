@@ -68,3 +68,29 @@ export async function getBannerDetail(alertId: string): Promise<Alert | null> {
     return null;
   }
 }
+
+export interface UrlMetadata {
+  title: string;
+  description: string;
+  image: string;
+  siteName: string;
+  url: string;
+}
+
+export async function getUrlMetadata(url: string): Promise<UrlMetadata> {
+  try {
+    const response = await apiFetch(`/api/public/url-metadata?url=${encodeURIComponent(url)}`, {
+        method: 'GET'
+    });
+
+    if (!response.ok) {
+        return { title: '', description: '', image: '', siteName: new URL(url).hostname, url };
+    }
+
+    const result = await response.json();
+    return result.data || { title: '', description: '', image: '', siteName: '', url };
+  } catch (error) {
+    console.error('Error fetching metadata:', error);
+    return { title: '', description: '', image: '', siteName: '', url };
+  }
+}

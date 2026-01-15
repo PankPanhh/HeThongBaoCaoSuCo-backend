@@ -312,4 +312,22 @@ router.get("/public/banners", alertController.getActiveBanners);
  */
 router.get("/public/banners/:alertId", alertController.getBannerDetail);
 
+/**
+ * @swagger
+ * /api/public/url-metadata:
+ *   get:
+ *     summary: Get metadata for URL preview
+ *     tags: [Public - Banners]
+ *     parameters:
+ *       - in: query
+ *         name: url
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: URL metadata
+ */
+router.get("/public/url-metadata", alertController.getUrlMetadata);
+
 export default router;
